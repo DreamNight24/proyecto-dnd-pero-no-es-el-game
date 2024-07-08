@@ -134,17 +134,17 @@ class UsuarioMantenedor(tk.Toplevel): # la clase que mantiene usuarios, hence th
         # Cargar usuarios al abrir el mantenedor
         self.leer_usuarios()
 
-    def crear_usuario(self):
+    def crear_usuario(self): # Función de crear usuarios
         nombre = self.nombre_entry.get().strip()
         usuario = self.usuario_entry.get().strip()
         contrasena = self.contrasena_entry.get()
         es_gm = self.es_gm_var.get()
 
-        if not nombre or not usuario or not contrasena:
+        if not nombre or not usuario or not contrasena: # Descriptivos
             messagebox.showerror("Error", "Todos los campos son obligatorios")
             return
 
-        if len(contrasena) < 8:
+        if len(contrasena) < 8: 
             messagebox.showerror("Error", "La contraseña debe tener al menos 8 caracteres")
             return
 
