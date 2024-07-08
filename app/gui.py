@@ -74,7 +74,7 @@ class Application(tk.Frame):
             messagebox.showerror("Error", "Debe iniciar sesión primero")
             return
 
-        personajes = Personaje.get_all_by_user(self.usuario_actual) # obtiene todos los personajes del usuario
+        personajes = Personaje.get_all(self.usuario_actual) # obtiene todos los personajes del usuario
         if not personajes:
             messagebox.showinfo("Información", "No tienes personajes creados")
             return
