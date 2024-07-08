@@ -1,0 +1,40 @@
+Razas predeterminadas
+- Humanos
+- Tieflings
+- Draconicos
+- Elfos
+- Enanos
+
+ARMAS: Equipamiento
+- Daga 
+- Hacha de mano
+- Lanza
+- Espada 
+- Martillo de guerra
+- Tridente
+- Bastón.
+- Estoques
+
+EQUIPAMIENTO: OBJETOS
+- Armadura
+- Escudo
+- Kit de herbologista
+- Herramientas de artesano
+- Herramientas de ladrón
+- Paquete de erudito
+- Paquete de explorador
+- Paquete de artista
+- Paquete de sacerdote
+- Herramientas de navegante
+- Pociones de curación. 
+
+
+PODERES
+A. Humanos
+   - Idiomas ( común + 1 elección)
+   - Habilidad a elección
+   - 
+
+B. Elfos
+   - Visión en la oscuridad
+   - 
