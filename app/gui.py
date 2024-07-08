@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from models import Usuario, Personaje, Raza, Estado
+from models import Usuario, Personaje, Raza, Estado, Habilidad, Poder
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -154,6 +154,8 @@ class CreadorPersonaje(tk.Toplevel):
         super().__init__(master)
         self.id_usuario = id_usuario
         self.title("Crear Personaje")
+        self.habilidades_seleccionadas = []
+        self.poder_seleccionado = None
         self.create_widgets()
 
     def create_widgets(self):
@@ -165,22 +167,51 @@ class CreadorPersonaje(tk.Toplevel):
         self.raza_combobox = ttk.Combobox(self, state="readonly")
         self.raza_combobox.grid(row=1, column=1)
 
-        self.cargar_razas()
+        ttk.Label(self, text="Habilidades:").grid(row=2, column=0, sticky="w")
+        self.habilidades_listbox = tk.Listbox(self, selectmode=tk.MULTIPLE)
+        self.habilidades_listbox.grid(row=2, column=1)
 
-        ttk.Button(self, text="Crear Personaje", command=self.crear_personaje).grid(row=2, column=0, columnspan=2)
+        ttk.Label(self, text="Poder:").grid(row=3, column=0, sticky="w")
+        self.poder_combobox = ttk.Combobox(self, state="readonly")
+        self.poder_combobox.grid(row=3, column=1)
+
+        ttk.Button(self, text="Crear Personaje", command=self.crear_personaje).grid(row=4, column=0, columnspan=2)
+
+        self.cargar_razas()
 
     def cargar_razas(self):
         razas = Raza.get_all()
         self.raza_combobox['values'] = [raza.Nombre_Raza for raza in razas]
         if razas:
             self.raza_combobox.current(0)
+        self.raza_combobox.bind("<<ComboboxSelected>>", self.actualizar_habilidades_y_poderes)
+
+    def actualizar_habilidades_y_poderes(self, event=None):
+        raza = self.raza_combobox.get()
+        razas = Raza.get_all()
+        id_raza = next((r.ID_Raza for r in razas if r.Nombre_Raza == raza), None)
+
+        if id_raza is None:
+            return
+
+        habilidades = Habilidad.get_by_raza(id_raza)
+        self.habilidades_listbox.delete(0, tk.END)
+        for habilidad in habilidades:
+            self.habilidades_listbox.insert(tk.END, habilidad.Nombre_Habilidad)
+
+        poderes = Poder.get_by_raza(id_raza)
+        self.poder_combobox['values'] = [poder.Nombre_Poder for poder in poderes]
+        if poderes:
+            self.poder_combobox.current(0)
 
     def crear_personaje(self):
         nombre = self.nombre_entry.get().strip()
         raza = self.raza_combobox.get()
+        habilidades_indices = self.habilidades_listbox.curselection()
+        poder = self.poder_combobox.get()
 
-        if not nombre or not raza:
-            messagebox.showerror("Error", "Todos los campos son obligatorios")
+        if not nombre or not raza or len(habilidades_indices) != 2 or not poder:
+            messagebox.showerror("Error", "Debe seleccionar un nombre, una raza, exactamente 2 habilidades y un poder")
             return
 
         razas = Raza.get_all()
@@ -205,6 +236,15 @@ class CreadorPersonaje(tk.Toplevel):
             ID_Estado=id_estado_vivo
         )
         nuevo_personaje.save()
+
+        habilidades = Habilidad.get_by_raza(id_raza)
+        for indice in habilidades_indices:
+            nuevo_personaje.asignar_habilidad(habilidades[indice].ID_Habilidad)
+
+        poderes = Poder.get_by_raza(id_raza)
+        id_poder = next((p.ID_Poder for p in poderes if p.Nombre_Poder == poder), None)
+        if id_poder:
+            nuevo_personaje.asignar_poder(id_poder)
 
         messagebox.showinfo("Éxito", "Personaje creado correctamente")
         self.destroy()

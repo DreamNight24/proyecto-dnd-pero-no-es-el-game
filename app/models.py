@@ -36,15 +36,15 @@ class Usuario:
             if self.ID_Usuario:
                 # Actualizar
                 query = """
-                UPDATE usuario 
-                SET Nombre = %s, Usuario = %s, Contrasena = %s 
+                UPDATE usuario
+                SET Nombre = %s, Usuario = %s, Contrasena = %s
                 WHERE ID_Usuario = %s
                 """
                 db.execute_query(query, (self.Nombre, self.Usuario, self._hash_password(self.Contrasena), self.ID_Usuario))
             else:
                 # Insertar
                 query = """
-                INSERT INTO usuario (Nombre, Usuario, Contrasena) 
+                INSERT INTO usuario (Nombre, Usuario, Contrasena)
                 VALUES (%s, %s, %s)
                 """
                 db.execute_query(query, (self.Nombre, self.Usuario, self._hash_password(self.Contrasena)))
@@ -102,20 +102,64 @@ class Personaje:
             if self.ID_Personaje:
                 # Actualizar
                 query = """
-                UPDATE personaje 
-                SET ID_Usuario = %s, Nombre_Personaje = %s, ID_Raza = %s, Nivel = %s, ID_Estado = %s 
+                UPDATE personaje
+                SET ID_Usuario = %s, Nombre_Personaje = %s, ID_Raza = %s, Nivel = %s, ID_Estado = %s
                 WHERE ID_Personaje = %s
                 """
                 db.execute_query(query, (self.ID_Usuario, self.Nombre_Personaje, self.ID_Raza, self.Nivel, self.ID_Estado, self.ID_Personaje))
             else:
                 # Insertar
                 query = """
-                INSERT INTO personaje (ID_Usuario, Nombre_Personaje, ID_Raza, Nivel, ID_Estado) 
+                INSERT INTO personaje (ID_Usuario, Nombre_Personaje, ID_Raza, Nivel, ID_Estado)
                 VALUES (%s, %s, %s, %s, %s)
                 """
                 db.execute_query(query, (self.ID_Usuario, self.Nombre_Personaje, self.ID_Raza, self.Nivel, self.ID_Estado))
         except Exception as e:
             print(f"Error al guardar personaje: {e}")
+
+    def asignar_habilidad(self, id_habilidad):
+        try:
+            db = Database()
+            query = "INSERT INTO personaje_habilidad (ID_Personaje, ID_Habilidad) VALUES (%s, %s)"
+            db.execute_query(query, (self.ID_Personaje, id_habilidad))
+        except Exception as e:
+            print(f"Error al asignar habilidad: {e}")
+
+    def asignar_poder(self, id_poder):
+        try:
+            db = Database()
+            query = "INSERT INTO personaje_poder (ID_Personaje, ID_Poder) VALUES (%s, %s)"
+            db.execute_query(query, (self.ID_Personaje, id_poder))
+        except Exception as e:
+            print(f"Error al asignar poder: {e}")
+
+    def get_habilidades(self):
+        try:
+            db = Database()
+            query = """
+            SELECT h.* FROM habilidad h
+            JOIN personaje_habilidad ph ON h.ID_Habilidad = ph.ID_Habilidad
+            WHERE ph.ID_Personaje = %s
+            """
+            results = db.fetch_all(query, (self.ID_Personaje,))
+            return [Habilidad(**result) for result in results]
+        except Exception as e:
+            print(f"Error al obtener habilidades del personaje: {e}")
+            return []
+
+    def get_poderes(self):
+        try:
+            db = Database()
+            query = """
+            SELECT p.* FROM poder p
+            JOIN personaje_poder pp ON p.ID_Poder = pp.ID_Poder
+            WHERE pp.ID_Personaje = %s
+            """
+            results = db.fetch_all(query, (self.ID_Personaje,))
+            return [Poder(**result) for result in results]
+        except Exception as e:
+            print(f"Error al obtener poderes del personaje: {e}")
+            return []
 
 class Raza:
     def __init__(self, ID_Raza=None, Nombre_Raza=None, Descripcion_Raza=None):
@@ -172,3 +216,37 @@ class Estado:
         except Exception as e:
             print(f"Error al obtener estado por ID: {e}")
             return None
+
+class Habilidad:
+    def __init__(self, ID_Habilidad=None, Nombre_Habilidad=None, Descripcion_Habilidad=None, ID_Raza=None):
+        self.ID_Habilidad = ID_Habilidad
+        self.Nombre_Habilidad = Nombre_Habilidad
+        self.Descripcion_Habilidad = Descripcion_Habilidad
+        self.ID_Raza = ID_Raza
+
+    @staticmethod
+    def get_by_raza(id_raza):
+        try:
+            db = Database()
+            results = db.fetch_all("SELECT * FROM habilidad WHERE ID_Raza = %s", (id_raza,))
+            return [Habilidad(**result) for result in results]
+        except Exception as e:
+            print(f"Error al obtener habilidades por raza: {e}")
+            return []
+
+class Poder:
+    def __init__(self, ID_Poder=None, Nombre_Poder=None, Descripcion_Poder=None, ID_Raza=None):
+        self.ID_Poder = ID_Poder
+        self.Nombre_Poder = Nombre_Poder
+        self.Descripcion_Poder = Descripcion_Poder
+        self.ID_Raza = ID_Raza
+
+    @staticmethod
+    def get_by_raza(id_raza):
+        try:
+            db = Database()
+            results = db.fetch_all("SELECT * FROM poder WHERE ID_Raza = %s", (id_raza,))
+            return [Poder(**result) for result in results]
+        except Exception as e:
+            print(f"Error al obtener poderes por raza: {e}")
+            return []
