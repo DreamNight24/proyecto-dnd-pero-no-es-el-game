@@ -27,14 +27,54 @@ EQUIPAMIENTO: OBJETOS
 - Paquete de sacerdote
 - Herramientas de navegante
 - Pociones de curación. 
+- Herramienta de artesano
 
 
-PODERES
+HABILIDADES 
 A. Humanos
    - Idiomas ( común + 1 elección)
    - Habilidad a elección
-   - 
+   - Habilidades de clase escogida (las demas) 
+   - Competencia con uso de armas ( A elección)
+   - Obtencion dote especial (Ver con su DM) 
 
 B. Elfos
    - Visión en la oscuridad
-   - 
+   - Entrenamiento con Armas Élfico: Eres competente con la espada larga, la espada corta, el arco corto y el arco largo.
+   - Ascendencia Feérica: Tienes ventaja en tiradas de salvación en contra de ser hechizado, y no puedes ser puesto a dormir mediante la magia.
+   - Máscara de la Espesura: Puedes intentar ocultarte incluso cuando estés sólo parcialmente cubierto por follaje, lluvia fuerte, nieve, niebla u otro fenómeno natural.
+   - Truco. Conoces un truco de tu elección de la lista de conjuros de mago. Usas tu Inteligencia para lanzarlo.
+
+C. Draconico
+   - Ataque de Aliento (Puedes usar tu acción para exhalar energía destructiva. Cuando usas tu arma de aliento, todas las criaturas que se encuentren en el área de la exhalación deben 
+     hacer una tirada de salvación, según determine tu antepasado dragón. La CD de esta tirada de salvación es igual a 8 + tu modificador por Constitución + tu bonificador por competencia. 
+     Si la criatura falla la tirada, recibe 2d6 puntos de daño, y si tiene éxito, la mitad. El daño aumenta a 3d6 en el nivel 6, a 4d6 en el nivel 11 y a 5d6 en el nivel 16.) -> Atributo 
+     elemental dependiendo el tipo linaje del antepasado dragón.
+   - Ataques naturales: Uso de garras y colmillos
+   - Vision en la oscuridad
+   - Linaje draconico: resistencia y generar ataques de energia, dependiendo del linaje ancestral del personaje. 
+   - Afinidad de clase escogida. 
+
+D. Enanos 
+   - Competencia con Herramientas (Competente con el uso de herramientas de artesano de tu elección: herramientas de herrero, materiales de cervecero o herramientas de albañil.)
+   - Resistencia Enana. (Posees tirada de salvacion en resistencia contra veneno)
+   - Vision en la oscuridad (a 60 pies + no diferenciar colores) 
+   - ​Entrenamiento de Combate Enano. Eres competente con el hacha de guerra, el hacha de mano, el martillo ligero y el martillo de guerra.
+   - Magia Duergar. Cuando subas al nivel 3, puedes lanzar el conjuro agrandar/reducir sobre ti mismo una vez, usando sólo la opción de agrandar. Cuando subas al nivel 5, 
+     puedes lanzar el conjuro invisibilidad sobre ti mismo una vez. No necesitas componentes materiales para lanzarlos, pero no puedes lanzarlos mientras estés bajo la luz del sol, 
+     aunque ésta no tiene efecto en ellos una vez lanzados. Puedes volver a lanzarlos tras un descanso largo. Usas tu Inteligencia para lanzar estos conjuros.
+
+E. Tieflings 
+   - Vision de oscuridad
+   - Legado infernal (Conocer truco "Taumaturgia", Cuando alcanzas el nivel 3, puedes lanzar el conjuro Represión infernal como un conjuro de nivel 2 una vez con este rasgo y volver 
+     a utilizarlo cuando completes un descanso prolongado. Cuando alcanzas el nivel 5, puedes lanzar el conjuro Oscuridad una vez con este rasgo y volver a utilizarlo cuando completes 
+     un descanso prolongado. La característica con la que lanzas estos conjuros es Carisma.)
+   - Resistencia infernal (Resistes los ataques tipo fuego)
+   - Disfrazarse (truco)
+   - Conjuro: Manos ardientes ( Al extender tus manos con los pulgares tocándose y los dedos extendidos, una cortina de llamas emerge de las yemas de tus dedos. 
+     Cada criatura que se encuentre en un cono de 15 pies originado en ti debe realizar una tirada de salvación de Destreza. Si la falla, la criatura sufre 3d6 de daño de fuego, 
+     o la mitad si la supera. El fuego prende los objetos inflamables en ese área que no estén siendo llevados ni sujetados.)
+
+
+PODERES 
+- 
