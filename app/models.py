@@ -2,11 +2,13 @@ from database import Database
 import hashlib
 
 class Usuario:
-    def __init__(self, ID_Usuario=None, Nombre=None, Usuario=None, Contrasena=None):
+    def __init__(self, ID_Usuario=None, Nombre=None, Usuario=None, Contrasena=None, Es_GM=False):
         self.ID_Usuario = ID_Usuario
         self.Nombre = Nombre
         self.Usuario = Usuario
         self.Contrasena = Contrasena
+        self.Es_GM = Es_GM
+
 
     @staticmethod
     def get_by_id(id_usuario):
@@ -36,18 +38,18 @@ class Usuario:
             if self.ID_Usuario:
                 # Actualizar
                 query = """
-                UPDATE usuario
-                SET Nombre = %s, Usuario = %s, Contrasena = %s
+                UPDATE usuario 
+                SET Nombre = %s, Usuario = %s, Contrasena = %s, Es_GM = %s 
                 WHERE ID_Usuario = %s
                 """
-                db.execute_query(query, (self.Nombre, self.Usuario, self._hash_password(self.Contrasena), self.ID_Usuario))
+                db.execute_query(query, (self.Nombre, self.Usuario, self._hash_password(self.Contrasena), self.Es_GM, self.ID_Usuario))
             else:
                 # Insertar
                 query = """
-                INSERT INTO usuario (Nombre, Usuario, Contrasena)
-                VALUES (%s, %s, %s)
+                INSERT INTO usuario (Nombre, Usuario, Contrasena, Es_GM) 
+                VALUES (%s, %s, %s, %s)
                 """
-                db.execute_query(query, (self.Nombre, self.Usuario, self._hash_password(self.Contrasena)))
+                db.execute_query(query, (self.Nombre, self.Usuario, self._hash_password(self.Contrasena), self.Es_GM))
         except Exception as e:
             print(f"Error al guardar usuario: {e}")
 
@@ -64,6 +66,22 @@ class Usuario:
     @staticmethod
     def _hash_password(password):
         return hashlib.sha256(password.encode()).hexdigest()
+
+    @staticmethod
+    def verificar_credenciales(usuario, contrasena):
+        try:
+            db = Database()
+            hashed_password = Usuario._hash_password(contrasena)
+            query = "SELECT * FROM usuario WHERE Usuario = %s AND Contrasena = %s"
+            result = db.fetch_one(query, (usuario, hashed_password))
+            if result:
+                return Usuario(**result)
+            return None
+
+        except Exception as e:
+            print(f"Error al verificar credenciales: {e}")
+            return None
+
 
 class Personaje:
     def __init__(self, ID_Personaje=None, ID_Usuario=None, Nombre_Personaje=None, ID_Raza=None, Nivel=1, ID_Estado=None):
@@ -87,13 +105,13 @@ class Personaje:
             return None
 
     @staticmethod
-    def get_all_by_user(id_usuario):
+    def get_all():
         try:
             db = Database()
-            results = db.fetch_all("SELECT * FROM personaje WHERE ID_Usuario = %s", (id_usuario,))
+            results = db.fetch_all("SELECT * FROM personaje")
             return [Personaje(**result) for result in results]
         except Exception as e:
-            print(f"Error al obtener personajes del usuario: {e}")
+            print(f"Error al obtener todos los personajes: {e}")
             return []
 
     def save(self):
