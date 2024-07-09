@@ -76,5 +76,35 @@ E. Tieflings
      o la mitad si la supera. El fuego prende los objetos inflamables en ese área que no estén siendo llevados ni sujetados.)
 
 
-PODERES 
-- 
+PODERES (Algunos por clase) 
+- Mago: Luces danzantes (Truco)
+- Mago: Toque helado (Truco)
+- Mago: Relámpago
+- Mago: Disfrazarse
+- Mago:  Bola de fuego
+- Mago: Controlar agua
+- Mago: Ráfaga de viento
+- Mago: Muro de hielo
+- Mago: Oscuridad
+- Mago: Invisibilidad
+
+- Clerigo: Llama sagrada (Truco)
+- Clerigo: Reparar (Truco)
+- Clerigo: Curar heridas 
+- Clerigo: Detectar trampas
+- Clerigo: Resurrección
+- Clerigo: Tormenta de fuego
+- Clerigo: Espíritus guardianes
+- Clerigo: Crear o destruir agua
+- Clerigo: Guardia contra la muerte
+- Clerigo: Curar
+
+- Explorador: Hablar con los animales 
+- Explorador: Detectar venenos y enfermedades
+- Explorador: Zancada prodigiosa
+- Explorador: Detectar trampas
+- Explorador: Mensajero animal
+- Explorador: Protección contra veneno
+- Explorador:
+- Explorador:
+- Explorador:
