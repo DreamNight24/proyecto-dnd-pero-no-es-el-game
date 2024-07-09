@@ -134,5 +134,24 @@ PODERES (Algunos por clase)
 -Bardo: Animar objetos
 -Bardo: Patrón hipnótico
 
-- 
+- Paladin: Protección contra el bien y el mal
+- Paladin: Favor divino
+- Paladin: Arma mágica
+- Paladin: Hallar corcel
+- Paladin: Castigo marcado
+- Paladin: Levantar maldición
+- Paladin: Destierro
+- Paladin: Guardia contra la muerte
+- Paladin: Alzar a los muertos
+- Paladin: Círculo mágico
 
+- Picaro: 
+- Picaro: 
+- Picaro: 
+- Picaro: 
+- Picaro: 
+- Picaro: 
+- Picaro: 
+- Picaro: 
+- Picaro: 
+- Picaro: 
