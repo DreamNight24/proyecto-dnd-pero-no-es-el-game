@@ -98,6 +98,7 @@ PODERES (Algunos por clase)
 - Clerigo: Crear o destruir agua
 - Clerigo: Guardia contra la muerte
 - Clerigo: Curar
+- Clerigo: Resurrección verdadera
 
 - Explorador: Hablar con los animales 
 - Explorador: Detectar venenos y enfermedades
@@ -105,6 +106,33 @@ PODERES (Algunos por clase)
 - Explorador: Detectar trampas
 - Explorador: Mensajero animal
 - Explorador: Protección contra veneno
-- Explorador:
-- Explorador:
-- Explorador:
+- Explorador: Crecimiento vegetal
+- Explorador: Muro de viento
+- Explorador: Conjurar animales
+- Explorador: Paso arbóreo
+
+- Druida: Saber druídico (truco)
+- Druida: Reparar (truco)
+- Druida: Detectar venenos y enfermedades
+- Druida: Crear o destruir agua
+- Druida: Rayo de luna
+- Druida: Hablar con los animales
+- Druida: Explosión solar
+- Druida: Espejismo arcano
+- Druida: Conjurar elementales menores
+- Druida: Terremoto
+- Druida: Comunión con la naturaleza
+
+-Bardo: Burla dañina (Truco)
+-Bardo: Prestidigitación (truco)
+-Bardo: Encantar animal
+-Bardo: Ola atronadora
+-Bardo: Fuego feérico
+-Bardo: Engañar
+-Bardo: Sordera / Ceguera
+-Bardo: Calmar emociones
+-Bardo: Animar objetos
+-Bardo: Patrón hipnótico
+
+- 
+
