@@ -123,16 +123,16 @@ PODERES (Algunos por clase)
 - Druida: Terremoto
 - Druida: Comunión con la naturaleza
 
--Bardo: Burla dañina (Truco)
--Bardo: Prestidigitación (truco)
--Bardo: Encantar animal
--Bardo: Ola atronadora
--Bardo: Fuego feérico
--Bardo: Engañar
--Bardo: Sordera / Ceguera
--Bardo: Calmar emociones
--Bardo: Animar objetos
--Bardo: Patrón hipnótico
+- Bardo: Burla dañina (Truco)
+- Bardo: Prestidigitación (truco)
+- Bardo: Encantar animal
+- Bardo: Ola atronadora
+- Bardo: Fuego feérico
+- Bardo: Engañar
+- Bardo: Sordera / Ceguera
+- Bardo: Calmar emociones
+- Bardo: Animar objetos
+- Bardo: Patrón hipnótico
 
 - Paladin: Protección contra el bien y el mal
 - Paladin: Favor divino
@@ -145,13 +145,26 @@ PODERES (Algunos por clase)
 - Paladin: Alzar a los muertos
 - Paladin: Círculo mágico
 
-- Picaro: 
-- Picaro: 
-- Picaro: 
-- Picaro: 
-- Picaro: 
-- Picaro: 
-- Picaro: 
-- Picaro: 
-- Picaro: 
-- Picaro: 
+- Picaro: Reflejos de ladrón
+- Picaro: Usar objetos magicos
+- Picaro: Manos rapidas
+- Picaro: Trabajo en segundo piso (Escalar no cuesta movimiento adicional) 
+- Picaro: Sigilo supremo 
+- Picaro: Sentido ciego
+- Picaro: Evasion
+- Picaro: Accion astuta
+- Picaro: Golpe de suerte
+- Picaro: Mente resbaladiza
+
+- Barbaro: Furia (Mejorable por nivel)
+- Barbaro: Sentido del peligro
+- Barbaro: Instinto Salvaje 
+- Barbaro: Movimiento rapido
+- Barbaro: Frenesí
+- Barbaro: Represalia
+- Barbaro: Ataque adicional
+- Barbaro: Critico brutal
+- Barbaro: Poder indomable
+- Barbaro: Campeon primordial
+
+- Guerrero: 
