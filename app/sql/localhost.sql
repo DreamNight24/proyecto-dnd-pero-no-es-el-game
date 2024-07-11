@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 08-07-2024 a las 18:55:08
+-- Tiempo de generación: 11-07-2024 a las 20:41:52
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -30,10 +30,18 @@ USE `juegoderol`;
 --
 
 CREATE TABLE `equipamiento` (
-  `ID_Equipamiento` int(11) NOT NULL,
+  `ID_Equipamiento` int(255) NOT NULL,
   `Nombre_Equipamiento` varchar(100) NOT NULL,
   `Descripcion_Equipamiento` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `equipamiento`
+--
+
+INSERT INTO `equipamiento` (`ID_Equipamiento`, `Nombre_Equipamiento`, `Descripcion_Equipamiento`) VALUES
+(1, 'Espada', 'Una arma cortante efectiva'),
+(2, 'Hacha', 'Una arma contundente pero también cortante');
 
 -- --------------------------------------------------------
 
@@ -42,10 +50,19 @@ CREATE TABLE `equipamiento` (
 --
 
 CREATE TABLE `estado` (
-  `ID_Estado` int(1) NOT NULL COMMENT 'PK',
-  `Nombre_Estado` varchar(100) NOT NULL,
-  `Descripcion_Estado` varchar(255) NOT NULL
+  `ID_Estado` int(10) NOT NULL COMMENT 'PK',
+  `Nombre_Estado` varchar(255) NOT NULL,
+  `Descripcion_Estado` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `estado`
+--
+
+INSERT INTO `estado` (`ID_Estado`, `Nombre_Estado`, `Descripcion_Estado`) VALUES
+(1, 'Vivo', 'Personaje activo en el juego'),
+(2, 'Muerto', 'Personaje que ha fallecido en el juego'),
+(3, 'Envenenado', 'El usuario se envenena y sufre daño por segundo');
 
 -- --------------------------------------------------------
 
@@ -54,11 +71,19 @@ CREATE TABLE `estado` (
 --
 
 CREATE TABLE `habilidad` (
-  `ID_Habilidad` int(1) NOT NULL COMMENT 'PK',
+  `ID_Habilidad` int(255) NOT NULL COMMENT 'PK',
   `Nombre_Habilidad` varchar(100) NOT NULL,
   `Descripcion_Habilidad` varchar(255) NOT NULL,
-  `ID_Raza` int(1) NOT NULL COMMENT 'FK'
+  `ID_Raza` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `habilidad`
+--
+
+INSERT INTO `habilidad` (`ID_Habilidad`, `Nombre_Habilidad`, `Descripcion_Habilidad`, `ID_Raza`) VALUES
+(1, 'Golpe Rapido', 'Golpea antes que el otro adversario', 1),
+(2, 'Golpe Mortal', 'Golpea con una probabilidad de matar instantaneo.', 1);
 
 -- --------------------------------------------------------
 
@@ -67,14 +92,23 @@ CREATE TABLE `habilidad` (
 --
 
 CREATE TABLE `personaje` (
-  `ID_Personaje` int(11) NOT NULL,
-  `ID_Usuario` int(11) NOT NULL COMMENT 'FK',
-  `Nombre_Personajes` varchar(100) NOT NULL,
-  `ID_Raza` int(1) NOT NULL COMMENT 'FK',
+  `ID_Personaje` int(255) NOT NULL,
+  `ID_Usuario` int(255) NOT NULL COMMENT 'FK',
+  `Nombre_Personaje` varchar(255) NOT NULL,
+  `ID_Raza` int(11) NOT NULL DEFAULT 1,
   `Nivel` tinyint(1) NOT NULL,
-  `ID_Estado` int(1) NOT NULL COMMENT 'FK',
-  `ID_Equipamiento` int(11) NOT NULL
+  `ID_Estado` int(10) NOT NULL COMMENT 'FK',
+  `ID_Equipamiento` int(11) DEFAULT NULL,
+  `ID_Poder` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `personaje`
+--
+
+INSERT INTO `personaje` (`ID_Personaje`, `ID_Usuario`, `Nombre_Personaje`, `ID_Raza`, `Nivel`, `ID_Estado`, `ID_Equipamiento`, `ID_Poder`) VALUES
+(13, 25, 'Hombre', 1, 1, 1, NULL, NULL),
+(24, 25, 'Mujer1', 1, 1, 1, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -83,10 +117,32 @@ CREATE TABLE `personaje` (
 --
 
 CREATE TABLE `personaje_equipamiento` (
-  `id_Equipamiento` int(1) NOT NULL,
-  `id_personaje` int(1) NOT NULL,
-  `id_personajeEquipamiento` int(11) NOT NULL,
+  `id_Equipamiento` int(255) NOT NULL,
+  `id_personaje` int(255) NOT NULL,
+  `id_personajeEquipamiento` int(255) NOT NULL,
   `equipados` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `personaje_habilidad`
+--
+
+CREATE TABLE `personaje_habilidad` (
+  `ID_Personaje` int(255) NOT NULL,
+  `ID_Habilidad` int(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `personaje_poder`
+--
+
+CREATE TABLE `personaje_poder` (
+  `ID_Personaje` int(11) NOT NULL,
+  `ID_Poder` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 -- --------------------------------------------------------
@@ -97,10 +153,18 @@ CREATE TABLE `personaje_equipamiento` (
 
 CREATE TABLE `poder` (
   `ID_Poder` int(1) NOT NULL COMMENT 'PK',
-  `Nombre_Poder` varchar(100) NOT NULL,
+  `Nombre_Poder` varchar(255) NOT NULL,
   `Descripcion_Poder` varchar(255) NOT NULL,
   `ID_Raza` int(1) NOT NULL COMMENT 'FK'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `poder`
+--
+
+INSERT INTO `poder` (`ID_Poder`, `Nombre_Poder`, `Descripcion_Poder`, `ID_Raza`) VALUES
+(1, 'Golpe Final', 'Mientras menos fuerza vital, más golpeas', 1),
+(2, 'Golpe Mortal', 'Golpe con probabilidad baja de matar', 1);
 
 -- --------------------------------------------------------
 
@@ -110,9 +174,19 @@ CREATE TABLE `poder` (
 
 CREATE TABLE `raza` (
   `ID_Raza` int(1) NOT NULL COMMENT 'PK',
-  `Nombre_Raza` varchar(100) NOT NULL,
+  `Nombre_Raza` varchar(255) NOT NULL,
   `Descripcion_Raza` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `raza`
+--
+
+INSERT INTO `raza` (`ID_Raza`, `Nombre_Raza`, `Descripcion_Raza`) VALUES
+(1, 'Humano', 'Un humano normal y corriente'),
+(2, 'Elfo', 'Una raza sumamente inteligente y de orejas puntiagudas'),
+(3, 'Enano', 'Una raza de baja estatura pero de destreza y fuerza inimaginables, excelentes herreros'),
+(4, 'Orco', 'Esta raza de aspecto feo puede golpearte con la fuerza de una montaña');
 
 -- --------------------------------------------------------
 
@@ -121,7 +195,7 @@ CREATE TABLE `raza` (
 --
 
 CREATE TABLE `usuario` (
-  `ID_Usuario` int(11) NOT NULL COMMENT 'PK',
+  `ID_Usuario` int(255) NOT NULL COMMENT 'PK',
   `Nombre` varchar(255) NOT NULL,
   `Usuario` varchar(255) NOT NULL,
   `Contrasena` varchar(128) NOT NULL COMMENT 'Hash',
@@ -133,8 +207,8 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`ID_Usuario`, `Nombre`, `Usuario`, `Contrasena`, `Es_GM`) VALUES
-(9, 'aaaaaaaa', 'aaaaaaaaGM', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 1),
-(10, 'pepe', 'holaGM', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 1);
+(24, 'Pepe', 'GM', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 1),
+(25, 'user', 'usuario', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 0);
 
 --
 -- Índices para tablas volcadas
@@ -157,7 +231,7 @@ ALTER TABLE `estado`
 --
 ALTER TABLE `habilidad`
   ADD PRIMARY KEY (`ID_Habilidad`),
-  ADD KEY `Habilidad_Raza_FK` (`ID_Raza`);
+  ADD KEY `fk_habilidad_raza` (`ID_Raza`);
 
 --
 -- Indices de la tabla `personaje`
@@ -176,6 +250,20 @@ ALTER TABLE `personaje_equipamiento`
   ADD PRIMARY KEY (`id_personajeEquipamiento`),
   ADD KEY `personaje_equipamiento_equipamiento_FK` (`id_Equipamiento`),
   ADD KEY `personaje_equipamiento_personaje_FK` (`id_personaje`);
+
+--
+-- Indices de la tabla `personaje_habilidad`
+--
+ALTER TABLE `personaje_habilidad`
+  ADD PRIMARY KEY (`ID_Personaje`,`ID_Habilidad`),
+  ADD KEY `ID_Habilidad` (`ID_Habilidad`);
+
+--
+-- Indices de la tabla `personaje_poder`
+--
+ALTER TABLE `personaje_poder`
+  ADD PRIMARY KEY (`ID_Personaje`,`ID_Poder`),
+  ADD KEY `ID_Poder` (`ID_Poder`);
 
 --
 -- Indices de la tabla `poder`
@@ -204,25 +292,49 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `equipamiento`
 --
 ALTER TABLE `equipamiento`
-  MODIFY `ID_Equipamiento` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ID_Equipamiento` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `estado`
+--
+ALTER TABLE `estado`
+  MODIFY `ID_Estado` int(10) NOT NULL AUTO_INCREMENT COMMENT 'PK', AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de la tabla `habilidad`
+--
+ALTER TABLE `habilidad`
+  MODIFY `ID_Habilidad` int(255) NOT NULL AUTO_INCREMENT COMMENT 'PK', AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `personaje`
 --
 ALTER TABLE `personaje`
-  MODIFY `ID_Personaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `ID_Personaje` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `personaje_equipamiento`
 --
 ALTER TABLE `personaje_equipamiento`
-  MODIFY `id_personajeEquipamiento` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_personajeEquipamiento` int(255) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `poder`
+--
+ALTER TABLE `poder`
+  MODIFY `ID_Poder` int(1) NOT NULL AUTO_INCREMENT COMMENT 'PK', AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `raza`
+--
+ALTER TABLE `raza`
+  MODIFY `ID_Raza` int(1) NOT NULL AUTO_INCREMENT COMMENT 'PK', AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `ID_Usuario` int(11) NOT NULL AUTO_INCREMENT COMMENT 'PK', AUTO_INCREMENT=11;
+  MODIFY `ID_Usuario` int(255) NOT NULL AUTO_INCREMENT COMMENT 'PK', AUTO_INCREMENT=26;
 
 --
 -- Restricciones para tablas volcadas
@@ -232,7 +344,8 @@ ALTER TABLE `usuario`
 -- Filtros para la tabla `habilidad`
 --
 ALTER TABLE `habilidad`
-  ADD CONSTRAINT `Habilidad_Raza_FK` FOREIGN KEY (`ID_Raza`) REFERENCES `raza` (`ID_Raza`);
+  ADD CONSTRAINT `Habilidad_Raza_FK` FOREIGN KEY (`ID_Raza`) REFERENCES `raza` (`ID_Raza`),
+  ADD CONSTRAINT `fk_habilidad_raza` FOREIGN KEY (`ID_Raza`) REFERENCES `raza` (`ID_Raza`) ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `personaje`
@@ -249,6 +362,20 @@ ALTER TABLE `personaje`
 ALTER TABLE `personaje_equipamiento`
   ADD CONSTRAINT `personaje_equipamiento_equipamiento_FK` FOREIGN KEY (`id_Equipamiento`) REFERENCES `equipamiento` (`ID_Equipamiento`),
   ADD CONSTRAINT `personaje_equipamiento_personaje_FK` FOREIGN KEY (`id_personaje`) REFERENCES `personaje` (`ID_Personaje`);
+
+--
+-- Filtros para la tabla `personaje_habilidad`
+--
+ALTER TABLE `personaje_habilidad`
+  ADD CONSTRAINT `personaje_habilidad_ibfk_1` FOREIGN KEY (`ID_Personaje`) REFERENCES `personaje` (`ID_Personaje`),
+  ADD CONSTRAINT `personaje_habilidad_ibfk_2` FOREIGN KEY (`ID_Habilidad`) REFERENCES `habilidad` (`ID_Habilidad`);
+
+--
+-- Filtros para la tabla `personaje_poder`
+--
+ALTER TABLE `personaje_poder`
+  ADD CONSTRAINT `personaje_poder_ibfk_1` FOREIGN KEY (`ID_Personaje`) REFERENCES `personaje` (`ID_Personaje`),
+  ADD CONSTRAINT `personaje_poder_ibfk_2` FOREIGN KEY (`ID_Poder`) REFERENCES `poder` (`ID_Poder`);
 
 --
 -- Filtros para la tabla `poder`
@@ -343,7 +470,11 @@ CREATE TABLE `pma__export_templates` (
 INSERT INTO `pma__export_templates` (`id`, `username`, `export_type`, `template_name`, `template_data`) VALUES
 (8, 'root', 'server', '1', '{\"quick_or_custom\":\"quick\",\"what\":\"sql\",\"db_select[]\":[\"juegoderol\",\"phpmyadmin\",\"test\"],\"aliases_new\":\"\",\"output_format\":\"sendit\",\"filename_template\":\"@SERVER@\",\"remember_template\":\"on\",\"charset\":\"utf-8\",\"compression\":\"none\",\"maxsize\":\"\",\"codegen_structure_or_data\":\"data\",\"codegen_format\":\"0\",\"csv_separator\":\",\",\"csv_enclosed\":\"\\\"\",\"csv_escaped\":\"\\\"\",\"csv_terminated\":\"AUTO\",\"csv_null\":\"NULL\",\"csv_columns\":\"something\",\"csv_structure_or_data\":\"data\",\"excel_null\":\"NULL\",\"excel_columns\":\"something\",\"excel_edition\":\"win\",\"excel_structure_or_data\":\"data\",\"json_structure_or_data\":\"data\",\"json_unicode\":\"something\",\"latex_caption\":\"something\",\"latex_structure_or_data\":\"structure_and_data\",\"latex_structure_caption\":\"Estructura de la tabla @TABLE@\",\"latex_structure_continued_caption\":\"Estructura de la tabla @TABLE@ (continÃºa)\",\"latex_structure_label\":\"tab:@TABLE@-structure\",\"latex_relation\":\"something\",\"latex_comments\":\"something\",\"latex_mime\":\"something\",\"latex_columns\":\"something\",\"latex_data_caption\":\"Contenido de la tabla @TABLE@\",\"latex_data_continued_caption\":\"Contenido de la tabla @TABLE@ (continÃºa)\",\"latex_data_label\":\"tab:@TABLE@-data\",\"latex_null\":\"\\\\textit{NULL}\",\"mediawiki_structure_or_data\":\"data\",\"mediawiki_caption\":\"something\",\"mediawiki_headers\":\"something\",\"htmlword_structure_or_data\":\"structure_and_data\",\"htmlword_null\":\"NULL\",\"ods_null\":\"NULL\",\"ods_structure_or_data\":\"data\",\"odt_structure_or_data\":\"structure_and_data\",\"odt_relation\":\"something\",\"odt_comments\":\"something\",\"odt_mime\":\"something\",\"odt_columns\":\"something\",\"odt_null\":\"NULL\",\"pdf_report_title\":\"\",\"pdf_structure_or_data\":\"data\",\"phparray_structure_or_data\":\"data\",\"sql_include_comments\":\"something\",\"sql_header_comment\":\"\",\"sql_use_transaction\":\"something\",\"sql_compatibility\":\"NONE\",\"sql_structure_or_data\":\"structure_and_data\",\"sql_create_table\":\"something\",\"sql_auto_increment\":\"something\",\"sql_create_view\":\"something\",\"sql_create_trigger\":\"something\",\"sql_backquotes\":\"something\",\"sql_type\":\"INSERT\",\"sql_insert_syntax\":\"both\",\"sql_max_query_size\":\"50000\",\"sql_hex_for_binary\":\"something\",\"sql_utc_time\":\"something\",\"texytext_structure_or_data\":\"structure_and_data\",\"texytext_null\":\"NULL\",\"yaml_structure_or_data\":\"data\",\"\":null,\"as_separate_files\":null,\"csv_removeCRLF\":null,\"excel_removeCRLF\":null,\"json_pretty_print\":null,\"htmlword_columns\":null,\"ods_columns\":null,\"sql_dates\":null,\"sql_relation\":null,\"sql_mime\":null,\"sql_disable_fk\":null,\"sql_views_as_tables\":null,\"sql_metadata\":null,\"sql_drop_database\":null,\"sql_drop_table\":null,\"sql_if_not_exists\":null,\"sql_simple_view_export\":null,\"sql_view_current_user\":null,\"sql_or_replace_view\":null,\"sql_procedure_function\":null,\"sql_truncate\":null,\"sql_delayed\":null,\"sql_ignore\":null,\"texytext_columns\":null}'),
 (10, 'root', 'database', 'aaaa', '{\"quick_or_custom\":\"quick\",\"what\":\"sql\",\"structure_or_data_forced\":\"0\",\"table_select[]\":[\"equipamiento\",\"estado\",\"habilidad\",\"personaje\",\"personaje_equipamiento\",\"poder\",\"raza\",\"usuario\"],\"table_structure[]\":[\"equipamiento\",\"estado\",\"habilidad\",\"personaje\",\"personaje_equipamiento\",\"poder\",\"raza\",\"usuario\"],\"table_data[]\":[\"equipamiento\",\"estado\",\"habilidad\",\"personaje\",\"personaje_equipamiento\",\"poder\",\"raza\",\"usuario\"],\"aliases_new\":\"\",\"output_format\":\"sendit\",\"filename_template\":\"@DATABASE@\",\"remember_template\":\"on\",\"charset\":\"utf-8\",\"compression\":\"none\",\"maxsize\":\"\",\"codegen_structure_or_data\":\"data\",\"codegen_format\":\"0\",\"csv_separator\":\",\",\"csv_enclosed\":\"\\\"\",\"csv_escaped\":\"\\\"\",\"csv_terminated\":\"AUTO\",\"csv_null\":\"NULL\",\"csv_columns\":\"something\",\"csv_structure_or_data\":\"data\",\"excel_null\":\"NULL\",\"excel_columns\":\"something\",\"excel_edition\":\"win\",\"excel_structure_or_data\":\"data\",\"json_structure_or_data\":\"data\",\"json_unicode\":\"something\",\"latex_caption\":\"something\",\"latex_structure_or_data\":\"structure_and_data\",\"latex_structure_caption\":\"Estructura de la tabla @TABLE@\",\"latex_structure_continued_caption\":\"Estructura de la tabla @TABLE@ (continÃºa)\",\"latex_structure_label\":\"tab:@TABLE@-structure\",\"latex_relation\":\"something\",\"latex_comments\":\"something\",\"latex_mime\":\"something\",\"latex_columns\":\"something\",\"latex_data_caption\":\"Contenido de la tabla @TABLE@\",\"latex_data_continued_caption\":\"Contenido de la tabla @TABLE@ (continÃºa)\",\"latex_data_label\":\"tab:@TABLE@-data\",\"latex_null\":\"\\\\textit{NULL}\",\"mediawiki_structure_or_data\":\"structure_and_data\",\"mediawiki_caption\":\"something\",\"mediawiki_headers\":\"something\",\"htmlword_structure_or_data\":\"structure_and_data\",\"htmlword_null\":\"NULL\",\"ods_null\":\"NULL\",\"ods_structure_or_data\":\"data\",\"odt_structure_or_data\":\"structure_and_data\",\"odt_relation\":\"something\",\"odt_comments\":\"something\",\"odt_mime\":\"something\",\"odt_columns\":\"something\",\"odt_null\":\"NULL\",\"pdf_report_title\":\"\",\"pdf_structure_or_data\":\"structure_and_data\",\"phparray_structure_or_data\":\"data\",\"sql_include_comments\":\"something\",\"sql_header_comment\":\"\",\"sql_use_transaction\":\"something\",\"sql_compatibility\":\"NONE\",\"sql_structure_or_data\":\"structure_and_data\",\"sql_create_table\":\"something\",\"sql_auto_increment\":\"something\",\"sql_create_view\":\"something\",\"sql_procedure_function\":\"something\",\"sql_create_trigger\":\"something\",\"sql_backquotes\":\"something\",\"sql_type\":\"INSERT\",\"sql_insert_syntax\":\"both\",\"sql_max_query_size\":\"50000\",\"sql_hex_for_binary\":\"something\",\"sql_utc_time\":\"something\",\"texytext_structure_or_data\":\"structure_and_data\",\"texytext_null\":\"NULL\",\"xml_structure_or_data\":\"data\",\"xml_export_events\":\"something\",\"xml_export_functions\":\"something\",\"xml_export_procedures\":\"something\",\"xml_export_tables\":\"something\",\"xml_export_triggers\":\"something\",\"xml_export_views\":\"something\",\"xml_export_contents\":\"something\",\"yaml_structure_or_data\":\"data\",\"\":null,\"lock_tables\":null,\"as_separate_files\":null,\"csv_removeCRLF\":null,\"excel_removeCRLF\":null,\"json_pretty_print\":null,\"htmlword_columns\":null,\"ods_columns\":null,\"sql_dates\":null,\"sql_relation\":null,\"sql_mime\":null,\"sql_disable_fk\":null,\"sql_views_as_tables\":null,\"sql_metadata\":null,\"sql_create_database\":null,\"sql_drop_table\":null,\"sql_if_not_exists\":null,\"sql_simple_view_export\":null,\"sql_view_current_user\":null,\"sql_or_replace_view\":null,\"sql_truncate\":null,\"sql_delayed\":null,\"sql_ignore\":null,\"texytext_columns\":null}'),
-(11, 'root', 'server', '2', '{\"quick_or_custom\":\"quick\",\"what\":\"sql\",\"db_select[]\":[\"juegoderol\",\"phpmyadmin\",\"test\"],\"aliases_new\":\"\",\"output_format\":\"sendit\",\"filename_template\":\"@SERVER@\",\"remember_template\":\"on\",\"charset\":\"utf-8\",\"compression\":\"none\",\"maxsize\":\"\",\"codegen_structure_or_data\":\"data\",\"codegen_format\":\"0\",\"csv_separator\":\",\",\"csv_enclosed\":\"\\\"\",\"csv_escaped\":\"\\\"\",\"csv_terminated\":\"AUTO\",\"csv_null\":\"NULL\",\"csv_columns\":\"something\",\"csv_structure_or_data\":\"data\",\"excel_null\":\"NULL\",\"excel_columns\":\"something\",\"excel_edition\":\"win\",\"excel_structure_or_data\":\"data\",\"json_structure_or_data\":\"data\",\"json_unicode\":\"something\",\"latex_caption\":\"something\",\"latex_structure_or_data\":\"structure_and_data\",\"latex_structure_caption\":\"Estructura de la tabla @TABLE@\",\"latex_structure_continued_caption\":\"Estructura de la tabla @TABLE@ (continÃºa)\",\"latex_structure_label\":\"tab:@TABLE@-structure\",\"latex_relation\":\"something\",\"latex_comments\":\"something\",\"latex_mime\":\"something\",\"latex_columns\":\"something\",\"latex_data_caption\":\"Contenido de la tabla @TABLE@\",\"latex_data_continued_caption\":\"Contenido de la tabla @TABLE@ (continÃºa)\",\"latex_data_label\":\"tab:@TABLE@-data\",\"latex_null\":\"\\\\textit{NULL}\",\"mediawiki_structure_or_data\":\"data\",\"mediawiki_caption\":\"something\",\"mediawiki_headers\":\"something\",\"htmlword_structure_or_data\":\"structure_and_data\",\"htmlword_null\":\"NULL\",\"ods_null\":\"NULL\",\"ods_structure_or_data\":\"data\",\"odt_structure_or_data\":\"structure_and_data\",\"odt_relation\":\"something\",\"odt_comments\":\"something\",\"odt_mime\":\"something\",\"odt_columns\":\"something\",\"odt_null\":\"NULL\",\"pdf_report_title\":\"\",\"pdf_structure_or_data\":\"data\",\"phparray_structure_or_data\":\"data\",\"sql_include_comments\":\"something\",\"sql_header_comment\":\"\",\"sql_use_transaction\":\"something\",\"sql_compatibility\":\"NONE\",\"sql_structure_or_data\":\"structure_and_data\",\"sql_create_table\":\"something\",\"sql_auto_increment\":\"something\",\"sql_create_view\":\"something\",\"sql_create_trigger\":\"something\",\"sql_backquotes\":\"something\",\"sql_type\":\"INSERT\",\"sql_insert_syntax\":\"both\",\"sql_max_query_size\":\"50000\",\"sql_hex_for_binary\":\"something\",\"sql_utc_time\":\"something\",\"texytext_structure_or_data\":\"structure_and_data\",\"texytext_null\":\"NULL\",\"yaml_structure_or_data\":\"data\",\"\":null,\"as_separate_files\":null,\"csv_removeCRLF\":null,\"excel_removeCRLF\":null,\"json_pretty_print\":null,\"htmlword_columns\":null,\"ods_columns\":null,\"sql_dates\":null,\"sql_relation\":null,\"sql_mime\":null,\"sql_disable_fk\":null,\"sql_views_as_tables\":null,\"sql_metadata\":null,\"sql_drop_database\":null,\"sql_drop_table\":null,\"sql_if_not_exists\":null,\"sql_simple_view_export\":null,\"sql_view_current_user\":null,\"sql_or_replace_view\":null,\"sql_procedure_function\":null,\"sql_truncate\":null,\"sql_delayed\":null,\"sql_ignore\":null,\"texytext_columns\":null}');
+(11, 'root', 'server', '2', '{\"quick_or_custom\":\"quick\",\"what\":\"sql\",\"db_select[]\":[\"juegoderol\",\"phpmyadmin\",\"test\"],\"aliases_new\":\"\",\"output_format\":\"sendit\",\"filename_template\":\"@SERVER@\",\"remember_template\":\"on\",\"charset\":\"utf-8\",\"compression\":\"none\",\"maxsize\":\"\",\"codegen_structure_or_data\":\"data\",\"codegen_format\":\"0\",\"csv_separator\":\",\",\"csv_enclosed\":\"\\\"\",\"csv_escaped\":\"\\\"\",\"csv_terminated\":\"AUTO\",\"csv_null\":\"NULL\",\"csv_columns\":\"something\",\"csv_structure_or_data\":\"data\",\"excel_null\":\"NULL\",\"excel_columns\":\"something\",\"excel_edition\":\"win\",\"excel_structure_or_data\":\"data\",\"json_structure_or_data\":\"data\",\"json_unicode\":\"something\",\"latex_caption\":\"something\",\"latex_structure_or_data\":\"structure_and_data\",\"latex_structure_caption\":\"Estructura de la tabla @TABLE@\",\"latex_structure_continued_caption\":\"Estructura de la tabla @TABLE@ (continÃºa)\",\"latex_structure_label\":\"tab:@TABLE@-structure\",\"latex_relation\":\"something\",\"latex_comments\":\"something\",\"latex_mime\":\"something\",\"latex_columns\":\"something\",\"latex_data_caption\":\"Contenido de la tabla @TABLE@\",\"latex_data_continued_caption\":\"Contenido de la tabla @TABLE@ (continÃºa)\",\"latex_data_label\":\"tab:@TABLE@-data\",\"latex_null\":\"\\\\textit{NULL}\",\"mediawiki_structure_or_data\":\"data\",\"mediawiki_caption\":\"something\",\"mediawiki_headers\":\"something\",\"htmlword_structure_or_data\":\"structure_and_data\",\"htmlword_null\":\"NULL\",\"ods_null\":\"NULL\",\"ods_structure_or_data\":\"data\",\"odt_structure_or_data\":\"structure_and_data\",\"odt_relation\":\"something\",\"odt_comments\":\"something\",\"odt_mime\":\"something\",\"odt_columns\":\"something\",\"odt_null\":\"NULL\",\"pdf_report_title\":\"\",\"pdf_structure_or_data\":\"data\",\"phparray_structure_or_data\":\"data\",\"sql_include_comments\":\"something\",\"sql_header_comment\":\"\",\"sql_use_transaction\":\"something\",\"sql_compatibility\":\"NONE\",\"sql_structure_or_data\":\"structure_and_data\",\"sql_create_table\":\"something\",\"sql_auto_increment\":\"something\",\"sql_create_view\":\"something\",\"sql_create_trigger\":\"something\",\"sql_backquotes\":\"something\",\"sql_type\":\"INSERT\",\"sql_insert_syntax\":\"both\",\"sql_max_query_size\":\"50000\",\"sql_hex_for_binary\":\"something\",\"sql_utc_time\":\"something\",\"texytext_structure_or_data\":\"structure_and_data\",\"texytext_null\":\"NULL\",\"yaml_structure_or_data\":\"data\",\"\":null,\"as_separate_files\":null,\"csv_removeCRLF\":null,\"excel_removeCRLF\":null,\"json_pretty_print\":null,\"htmlword_columns\":null,\"ods_columns\":null,\"sql_dates\":null,\"sql_relation\":null,\"sql_mime\":null,\"sql_disable_fk\":null,\"sql_views_as_tables\":null,\"sql_metadata\":null,\"sql_drop_database\":null,\"sql_drop_table\":null,\"sql_if_not_exists\":null,\"sql_simple_view_export\":null,\"sql_view_current_user\":null,\"sql_or_replace_view\":null,\"sql_procedure_function\":null,\"sql_truncate\":null,\"sql_delayed\":null,\"sql_ignore\":null,\"texytext_columns\":null}'),
+(12, 'root', 'server', '3', '{\"quick_or_custom\":\"quick\",\"what\":\"sql\",\"db_select[]\":[\"juegoderol\",\"phpmyadmin\",\"test\"],\"aliases_new\":\"\",\"output_format\":\"sendit\",\"filename_template\":\"@SERVER@\",\"remember_template\":\"on\",\"charset\":\"utf-8\",\"compression\":\"none\",\"maxsize\":\"\",\"codegen_structure_or_data\":\"data\",\"codegen_format\":\"0\",\"csv_separator\":\",\",\"csv_enclosed\":\"\\\"\",\"csv_escaped\":\"\\\"\",\"csv_terminated\":\"AUTO\",\"csv_null\":\"NULL\",\"csv_columns\":\"something\",\"csv_structure_or_data\":\"data\",\"excel_null\":\"NULL\",\"excel_columns\":\"something\",\"excel_edition\":\"win\",\"excel_structure_or_data\":\"data\",\"json_structure_or_data\":\"data\",\"json_unicode\":\"something\",\"latex_caption\":\"something\",\"latex_structure_or_data\":\"structure_and_data\",\"latex_structure_caption\":\"Estructura de la tabla @TABLE@\",\"latex_structure_continued_caption\":\"Estructura de la tabla @TABLE@ (continÃºa)\",\"latex_structure_label\":\"tab:@TABLE@-structure\",\"latex_relation\":\"something\",\"latex_comments\":\"something\",\"latex_mime\":\"something\",\"latex_columns\":\"something\",\"latex_data_caption\":\"Contenido de la tabla @TABLE@\",\"latex_data_continued_caption\":\"Contenido de la tabla @TABLE@ (continÃºa)\",\"latex_data_label\":\"tab:@TABLE@-data\",\"latex_null\":\"\\\\textit{NULL}\",\"mediawiki_structure_or_data\":\"data\",\"mediawiki_caption\":\"something\",\"mediawiki_headers\":\"something\",\"htmlword_structure_or_data\":\"structure_and_data\",\"htmlword_null\":\"NULL\",\"ods_null\":\"NULL\",\"ods_structure_or_data\":\"data\",\"odt_structure_or_data\":\"structure_and_data\",\"odt_relation\":\"something\",\"odt_comments\":\"something\",\"odt_mime\":\"something\",\"odt_columns\":\"something\",\"odt_null\":\"NULL\",\"pdf_report_title\":\"\",\"pdf_structure_or_data\":\"data\",\"phparray_structure_or_data\":\"data\",\"sql_include_comments\":\"something\",\"sql_header_comment\":\"\",\"sql_use_transaction\":\"something\",\"sql_compatibility\":\"NONE\",\"sql_structure_or_data\":\"structure_and_data\",\"sql_create_table\":\"something\",\"sql_auto_increment\":\"something\",\"sql_create_view\":\"something\",\"sql_create_trigger\":\"something\",\"sql_backquotes\":\"something\",\"sql_type\":\"INSERT\",\"sql_insert_syntax\":\"both\",\"sql_max_query_size\":\"50000\",\"sql_hex_for_binary\":\"something\",\"sql_utc_time\":\"something\",\"texytext_structure_or_data\":\"structure_and_data\",\"texytext_null\":\"NULL\",\"yaml_structure_or_data\":\"data\",\"\":null,\"as_separate_files\":null,\"csv_removeCRLF\":null,\"excel_removeCRLF\":null,\"json_pretty_print\":null,\"htmlword_columns\":null,\"ods_columns\":null,\"sql_dates\":null,\"sql_relation\":null,\"sql_mime\":null,\"sql_disable_fk\":null,\"sql_views_as_tables\":null,\"sql_metadata\":null,\"sql_drop_database\":null,\"sql_drop_table\":null,\"sql_if_not_exists\":null,\"sql_simple_view_export\":null,\"sql_view_current_user\":null,\"sql_or_replace_view\":null,\"sql_procedure_function\":null,\"sql_truncate\":null,\"sql_delayed\":null,\"sql_ignore\":null,\"texytext_columns\":null}'),
+(13, 'root', 'server', '4', '{\"quick_or_custom\":\"quick\",\"what\":\"sql\",\"db_select[]\":[\"juegoderol\",\"phpmyadmin\",\"test\"],\"aliases_new\":\"\",\"output_format\":\"sendit\",\"filename_template\":\"@SERVER@\",\"remember_template\":\"on\",\"charset\":\"utf-8\",\"compression\":\"none\",\"maxsize\":\"\",\"codegen_structure_or_data\":\"data\",\"codegen_format\":\"0\",\"csv_separator\":\",\",\"csv_enclosed\":\"\\\"\",\"csv_escaped\":\"\\\"\",\"csv_terminated\":\"AUTO\",\"csv_null\":\"NULL\",\"csv_columns\":\"something\",\"csv_structure_or_data\":\"data\",\"excel_null\":\"NULL\",\"excel_columns\":\"something\",\"excel_edition\":\"win\",\"excel_structure_or_data\":\"data\",\"json_structure_or_data\":\"data\",\"json_unicode\":\"something\",\"latex_caption\":\"something\",\"latex_structure_or_data\":\"structure_and_data\",\"latex_structure_caption\":\"Estructura de la tabla @TABLE@\",\"latex_structure_continued_caption\":\"Estructura de la tabla @TABLE@ (continÃºa)\",\"latex_structure_label\":\"tab:@TABLE@-structure\",\"latex_relation\":\"something\",\"latex_comments\":\"something\",\"latex_mime\":\"something\",\"latex_columns\":\"something\",\"latex_data_caption\":\"Contenido de la tabla @TABLE@\",\"latex_data_continued_caption\":\"Contenido de la tabla @TABLE@ (continÃºa)\",\"latex_data_label\":\"tab:@TABLE@-data\",\"latex_null\":\"\\\\textit{NULL}\",\"mediawiki_structure_or_data\":\"data\",\"mediawiki_caption\":\"something\",\"mediawiki_headers\":\"something\",\"htmlword_structure_or_data\":\"structure_and_data\",\"htmlword_null\":\"NULL\",\"ods_null\":\"NULL\",\"ods_structure_or_data\":\"data\",\"odt_structure_or_data\":\"structure_and_data\",\"odt_relation\":\"something\",\"odt_comments\":\"something\",\"odt_mime\":\"something\",\"odt_columns\":\"something\",\"odt_null\":\"NULL\",\"pdf_report_title\":\"\",\"pdf_structure_or_data\":\"data\",\"phparray_structure_or_data\":\"data\",\"sql_include_comments\":\"something\",\"sql_header_comment\":\"\",\"sql_use_transaction\":\"something\",\"sql_compatibility\":\"NONE\",\"sql_structure_or_data\":\"structure_and_data\",\"sql_create_table\":\"something\",\"sql_auto_increment\":\"something\",\"sql_create_view\":\"something\",\"sql_create_trigger\":\"something\",\"sql_backquotes\":\"something\",\"sql_type\":\"INSERT\",\"sql_insert_syntax\":\"both\",\"sql_max_query_size\":\"50000\",\"sql_hex_for_binary\":\"something\",\"sql_utc_time\":\"something\",\"texytext_structure_or_data\":\"structure_and_data\",\"texytext_null\":\"NULL\",\"yaml_structure_or_data\":\"data\",\"\":null,\"as_separate_files\":null,\"csv_removeCRLF\":null,\"excel_removeCRLF\":null,\"json_pretty_print\":null,\"htmlword_columns\":null,\"ods_columns\":null,\"sql_dates\":null,\"sql_relation\":null,\"sql_mime\":null,\"sql_disable_fk\":null,\"sql_views_as_tables\":null,\"sql_metadata\":null,\"sql_drop_database\":null,\"sql_drop_table\":null,\"sql_if_not_exists\":null,\"sql_simple_view_export\":null,\"sql_view_current_user\":null,\"sql_or_replace_view\":null,\"sql_procedure_function\":null,\"sql_truncate\":null,\"sql_delayed\":null,\"sql_ignore\":null,\"texytext_columns\":null}'),
+(14, 'root', 'database', 'aaaaaa', '{\"quick_or_custom\":\"quick\",\"what\":\"sql\",\"structure_or_data_forced\":\"0\",\"table_select[]\":[\"equipamiento\",\"estado\",\"habilidad\",\"personaje\",\"personaje_equipamiento\",\"poder\",\"raza\",\"usuario\"],\"table_structure[]\":[\"equipamiento\",\"estado\",\"habilidad\",\"personaje\",\"personaje_equipamiento\",\"poder\",\"raza\",\"usuario\"],\"table_data[]\":[\"equipamiento\",\"estado\",\"habilidad\",\"personaje\",\"personaje_equipamiento\",\"poder\",\"raza\",\"usuario\"],\"aliases_new\":\"\",\"output_format\":\"sendit\",\"filename_template\":\"@DATABASE@\",\"remember_template\":\"on\",\"charset\":\"utf-8\",\"compression\":\"none\",\"maxsize\":\"\",\"codegen_structure_or_data\":\"data\",\"codegen_format\":\"0\",\"csv_separator\":\",\",\"csv_enclosed\":\"\\\"\",\"csv_escaped\":\"\\\"\",\"csv_terminated\":\"AUTO\",\"csv_null\":\"NULL\",\"csv_columns\":\"something\",\"csv_structure_or_data\":\"data\",\"excel_null\":\"NULL\",\"excel_columns\":\"something\",\"excel_edition\":\"win\",\"excel_structure_or_data\":\"data\",\"json_structure_or_data\":\"data\",\"json_unicode\":\"something\",\"latex_caption\":\"something\",\"latex_structure_or_data\":\"structure_and_data\",\"latex_structure_caption\":\"Estructura de la tabla @TABLE@\",\"latex_structure_continued_caption\":\"Estructura de la tabla @TABLE@ (continÃºa)\",\"latex_structure_label\":\"tab:@TABLE@-structure\",\"latex_relation\":\"something\",\"latex_comments\":\"something\",\"latex_mime\":\"something\",\"latex_columns\":\"something\",\"latex_data_caption\":\"Contenido de la tabla @TABLE@\",\"latex_data_continued_caption\":\"Contenido de la tabla @TABLE@ (continÃºa)\",\"latex_data_label\":\"tab:@TABLE@-data\",\"latex_null\":\"\\\\textit{NULL}\",\"mediawiki_structure_or_data\":\"structure_and_data\",\"mediawiki_caption\":\"something\",\"mediawiki_headers\":\"something\",\"htmlword_structure_or_data\":\"structure_and_data\",\"htmlword_null\":\"NULL\",\"ods_null\":\"NULL\",\"ods_structure_or_data\":\"data\",\"odt_structure_or_data\":\"structure_and_data\",\"odt_relation\":\"something\",\"odt_comments\":\"something\",\"odt_mime\":\"something\",\"odt_columns\":\"something\",\"odt_null\":\"NULL\",\"pdf_report_title\":\"\",\"pdf_structure_or_data\":\"structure_and_data\",\"phparray_structure_or_data\":\"data\",\"sql_include_comments\":\"something\",\"sql_header_comment\":\"\",\"sql_use_transaction\":\"something\",\"sql_compatibility\":\"NONE\",\"sql_structure_or_data\":\"structure_and_data\",\"sql_create_table\":\"something\",\"sql_auto_increment\":\"something\",\"sql_create_view\":\"something\",\"sql_procedure_function\":\"something\",\"sql_create_trigger\":\"something\",\"sql_backquotes\":\"something\",\"sql_type\":\"INSERT\",\"sql_insert_syntax\":\"both\",\"sql_max_query_size\":\"50000\",\"sql_hex_for_binary\":\"something\",\"sql_utc_time\":\"something\",\"texytext_structure_or_data\":\"structure_and_data\",\"texytext_null\":\"NULL\",\"xml_structure_or_data\":\"data\",\"xml_export_events\":\"something\",\"xml_export_functions\":\"something\",\"xml_export_procedures\":\"something\",\"xml_export_tables\":\"something\",\"xml_export_triggers\":\"something\",\"xml_export_views\":\"something\",\"xml_export_contents\":\"something\",\"yaml_structure_or_data\":\"data\",\"\":null,\"lock_tables\":null,\"as_separate_files\":null,\"csv_removeCRLF\":null,\"excel_removeCRLF\":null,\"json_pretty_print\":null,\"htmlword_columns\":null,\"ods_columns\":null,\"sql_dates\":null,\"sql_relation\":null,\"sql_mime\":null,\"sql_disable_fk\":null,\"sql_views_as_tables\":null,\"sql_metadata\":null,\"sql_create_database\":null,\"sql_drop_table\":null,\"sql_if_not_exists\":null,\"sql_simple_view_export\":null,\"sql_view_current_user\":null,\"sql_or_replace_view\":null,\"sql_truncate\":null,\"sql_delayed\":null,\"sql_ignore\":null,\"texytext_columns\":null}'),
+(15, 'root', 'server', '5', '{\"quick_or_custom\":\"quick\",\"what\":\"sql\",\"db_select[]\":[\"juegoderol\",\"phpmyadmin\",\"test\"],\"aliases_new\":\"\",\"output_format\":\"sendit\",\"filename_template\":\"@SERVER@\",\"remember_template\":\"on\",\"charset\":\"utf-8\",\"compression\":\"none\",\"maxsize\":\"\",\"codegen_structure_or_data\":\"data\",\"codegen_format\":\"0\",\"csv_separator\":\",\",\"csv_enclosed\":\"\\\"\",\"csv_escaped\":\"\\\"\",\"csv_terminated\":\"AUTO\",\"csv_null\":\"NULL\",\"csv_columns\":\"something\",\"csv_structure_or_data\":\"data\",\"excel_null\":\"NULL\",\"excel_columns\":\"something\",\"excel_edition\":\"win\",\"excel_structure_or_data\":\"data\",\"json_structure_or_data\":\"data\",\"json_unicode\":\"something\",\"latex_caption\":\"something\",\"latex_structure_or_data\":\"structure_and_data\",\"latex_structure_caption\":\"Estructura de la tabla @TABLE@\",\"latex_structure_continued_caption\":\"Estructura de la tabla @TABLE@ (continÃºa)\",\"latex_structure_label\":\"tab:@TABLE@-structure\",\"latex_relation\":\"something\",\"latex_comments\":\"something\",\"latex_mime\":\"something\",\"latex_columns\":\"something\",\"latex_data_caption\":\"Contenido de la tabla @TABLE@\",\"latex_data_continued_caption\":\"Contenido de la tabla @TABLE@ (continÃºa)\",\"latex_data_label\":\"tab:@TABLE@-data\",\"latex_null\":\"\\\\textit{NULL}\",\"mediawiki_structure_or_data\":\"data\",\"mediawiki_caption\":\"something\",\"mediawiki_headers\":\"something\",\"htmlword_structure_or_data\":\"structure_and_data\",\"htmlword_null\":\"NULL\",\"ods_null\":\"NULL\",\"ods_structure_or_data\":\"data\",\"odt_structure_or_data\":\"structure_and_data\",\"odt_relation\":\"something\",\"odt_comments\":\"something\",\"odt_mime\":\"something\",\"odt_columns\":\"something\",\"odt_null\":\"NULL\",\"pdf_report_title\":\"\",\"pdf_structure_or_data\":\"data\",\"phparray_structure_or_data\":\"data\",\"sql_include_comments\":\"something\",\"sql_header_comment\":\"\",\"sql_use_transaction\":\"something\",\"sql_compatibility\":\"NONE\",\"sql_structure_or_data\":\"structure_and_data\",\"sql_create_table\":\"something\",\"sql_auto_increment\":\"something\",\"sql_create_view\":\"something\",\"sql_create_trigger\":\"something\",\"sql_backquotes\":\"something\",\"sql_type\":\"INSERT\",\"sql_insert_syntax\":\"both\",\"sql_max_query_size\":\"50000\",\"sql_hex_for_binary\":\"something\",\"sql_utc_time\":\"something\",\"texytext_structure_or_data\":\"structure_and_data\",\"texytext_null\":\"NULL\",\"yaml_structure_or_data\":\"data\",\"\":null,\"as_separate_files\":null,\"csv_removeCRLF\":null,\"excel_removeCRLF\":null,\"json_pretty_print\":null,\"htmlword_columns\":null,\"ods_columns\":null,\"sql_dates\":null,\"sql_relation\":null,\"sql_mime\":null,\"sql_disable_fk\":null,\"sql_views_as_tables\":null,\"sql_metadata\":null,\"sql_drop_database\":null,\"sql_drop_table\":null,\"sql_if_not_exists\":null,\"sql_simple_view_export\":null,\"sql_view_current_user\":null,\"sql_or_replace_view\":null,\"sql_procedure_function\":null,\"sql_truncate\":null,\"sql_delayed\":null,\"sql_ignore\":null,\"texytext_columns\":null}');
 
 -- --------------------------------------------------------
 
@@ -413,7 +544,7 @@ CREATE TABLE `pma__recent` (
 --
 
 INSERT INTO `pma__recent` (`username`, `tables`) VALUES
-('root', '[{\"db\":\"juegoderol\",\"table\":\"usuario\"},{\"db\":\"juegoderol\",\"table\":\"poder\"},{\"db\":\"juegoderol\",\"table\":\"equipamiento\"},{\"db\":\"juegoderol\",\"table\":\"personaje_equipamiento\"},{\"db\":\"juegoderol\",\"table\":\"personaje\"},{\"db\":\"juegoderol\",\"table\":\"habilidad\"},{\"db\":\"juegoderol\",\"table\":\"raza\"},{\"db\":\"juegoderol\",\"table\":\"estado\"}]');
+('root', '[{\"db\":\"juegoderol\",\"table\":\"personaje_poder\"},{\"db\":\"juegoderol\",\"table\":\"personaje_habilidad\"},{\"db\":\"juegoderol\",\"table\":\"personaje_equipamiento\"},{\"db\":\"juegoderol\",\"table\":\"personaje\"},{\"db\":\"juegoderol\",\"table\":\"habilidad\"},{\"db\":\"juegoderol\",\"table\":\"equipamiento\"},{\"db\":\"juegoderol\",\"table\":\"raza\"},{\"db\":\"juegoderol\",\"table\":\"poder\"},{\"db\":\"juegoderol\",\"table\":\"estado\"},{\"db\":\"juegoderol\",\"table\":\"usuario\"}]');
 
 -- --------------------------------------------------------
 
@@ -484,6 +615,13 @@ CREATE TABLE `pma__table_uiprefs` (
   `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Tables'' UI preferences';
 
+--
+-- Volcado de datos para la tabla `pma__table_uiprefs`
+--
+
+INSERT INTO `pma__table_uiprefs` (`username`, `db_name`, `table_name`, `prefs`, `last_update`) VALUES
+('root', 'juegoderol', 'usuario', '{\"sorted_col\":\"`Contrasena` ASC\"}', '2024-07-08 18:38:49');
+
 -- --------------------------------------------------------
 
 --
@@ -520,7 +658,7 @@ CREATE TABLE `pma__userconfig` (
 --
 
 INSERT INTO `pma__userconfig` (`username`, `timevalue`, `config_data`) VALUES
-('root', '2024-07-08 15:56:58', '{\"lang\":\"es\",\"Console\\/Mode\":\"collapse\",\"ThemeDefault\":\"bootstrap\"}');
+('root', '2024-07-11 18:07:54', '{\"lang\":\"es\",\"Console\\/Mode\":\"show\",\"ThemeDefault\":\"bootstrap\"}');
 
 -- --------------------------------------------------------
 
@@ -689,7 +827,7 @@ ALTER TABLE `pma__column_info`
 -- AUTO_INCREMENT de la tabla `pma__export_templates`
 --
 ALTER TABLE `pma__export_templates`
-  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `pma__history`
