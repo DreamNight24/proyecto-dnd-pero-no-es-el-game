@@ -43,7 +43,9 @@ class Database:
             with self.connection.cursor() as cursor:
                 cursor.execute(query, params or ())
                 self.connection.commit()
-                return cursor
+                if query.strip().upper().startswith("INSERT"):
+                    return cursor.lastrowid
+                return cursor.rowcount
         except pymysql.Error as e:
             print(f"Error al ejecutar la consulta: {e}")
             self.connection.rollback()

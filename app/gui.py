@@ -114,7 +114,7 @@ class GMInterface(tk.Toplevel):
         ttk.Button(self, text="Gestionar Poderes", command=self.gestionar_poderes).pack(pady=5)
         ttk.Button(self, text="Gestionar Razas", command=self.gestionar_razas).pack(pady=5)
         ttk.Button(self, text="Gestionar Equipamiento", command=self.gestionar_equipamiento).pack(pady=5)
-        ttk.Button(self, text="Ver Informe de Personajes", command=self.ver_informe).pack(pady=5)
+        ttk.Button(self, text="Gestionar Estados", command=self.gestionar_estados).pack(pady=5)
 
     def modificar_personajes(self):
         GMModificadorPersonaje(self)
@@ -131,8 +131,8 @@ class GMInterface(tk.Toplevel):
     def gestionar_equipamiento(self):
         GestionEquipamiento(self)
 
-    def ver_informe(self):
-        InformePersonajes(self)
+    def gestionar_estados(self):
+        GestionEstados(self)
 
 
 class JugadorInterface(tk.Toplevel):
@@ -173,7 +173,7 @@ class JugadorInterface(tk.Toplevel):
         self.personajes_equipamiento_combobox = ttk.Combobox(self.modificar_equipamiento_frame, state="readonly")
         self.personajes_equipamiento_combobox.pack(pady=5)
         self.cargar_personajes_equipamiento()
-        ttk.Button(self.modificar_equipamiento_frame, text="Modificar Equipamiento", command=self.abrir_modificador_equipamiento).pack(pady=10)
+        ttk.Button(self.modificar_equipamiento_frame, text="Modificar Equipamiento", command=self.modificar_equipamiento_personaje).pack(pady=10)
 
     def abrir_creador_personaje(self):
         CreadorPersonaje(self, self.usuario)
@@ -197,12 +197,76 @@ class JugadorInterface(tk.Toplevel):
         if personajes:
             self.personajes_equipamiento_combobox.set(personajes[0].Nombre_Personaje)
 
-    def abrir_modificador_equipamiento(self):
+    def modificar_equipamiento_personaje(self):
         personaje_nombre = self.personajes_equipamiento_combobox.get()
         if personaje_nombre:
             personaje = next((p for p in Personaje.get_by_usuario(self.usuario.ID_Usuario) if p.Nombre_Personaje == personaje_nombre), None)
             if personaje:
-                ModificadorEquipamiento(self, personaje)
+                if personaje.ID_Estado == 2:  # Asumiendo que 2 es el ID del estado "Muerto"
+                    messagebox.showerror("Error", "No se puede modificar el equipamiento de un personaje muerto")
+                    return
+
+                ventana_equipamiento = tk.Toplevel(self)
+                ventana_equipamiento.title(f"Modificar Equipamiento de {personaje.Nombre_Personaje}")
+                ventana_equipamiento.geometry("400x400")
+
+                frame = ttk.Frame(ventana_equipamiento, padding="10")
+                frame.pack(fill=tk.BOTH, expand=True)
+
+                ttk.Label(frame, text="Equipamiento actual:").grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 5))
+        
+                equipamiento_listbox = tk.Listbox(frame, width=50, height=5)
+                equipamiento_listbox.grid(row=1, column=0, columnspan=2, pady=(0, 10))
+
+                def cargar_equipamiento():
+                    equipamiento_listbox.delete(0, tk.END)
+                    for i, equipo in enumerate(personaje.equipamiento):
+                        equipamiento_listbox.insert(tk.END, equipo.Nombre_Equipamiento)
+                        if i == 0:  # Deshabilitar la selección del primer elemento
+                            equipamiento_listbox.itemconfig(i, {'bg': 'light gray'})
+                        else:
+                            equipamiento_listbox.itemconfig(i, {'bg': 'white'})
+
+                cargar_equipamiento()
+                
+                def eliminar_equipamiento():
+                    seleccion = equipamiento_listbox.curselection()
+                    if seleccion and seleccion[0] > 0:  # Asegurarse de que no sea el primer elemento
+                        del personaje.equipamiento[seleccion[0]]
+                        cargar_equipamiento()
+
+                ttk.Button(frame, text="Eliminar Equipamiento", command=eliminar_equipamiento).grid(row=2, column=0, columnspan=2, pady=5)
+
+                ttk.Label(frame, text="Equipamiento disponible:").grid(row=3, column=0, columnspan=2, sticky="w", pady=(10, 5))
+                equipamiento_disponible_listbox = tk.Listbox(frame, width=50, height=5)
+                equipamiento_disponible_listbox.grid(row=4, column=0, columnspan=2, pady=(0, 10))
+
+                def cargar_equipamiento_disponible():
+                    equipamiento_disponible_listbox.delete(0, tk.END)
+                    equipamiento_disponible = [e for e in Equipamiento.get_all() if e not in personaje.equipamiento]
+                    for equipo in equipamiento_disponible:
+                        equipamiento_disponible_listbox.insert(tk.END, equipo.Nombre_Equipamiento)
+
+                cargar_equipamiento_disponible()
+
+                def agregar_equipamiento():
+                    seleccion = equipamiento_disponible_listbox.curselection()
+                    if seleccion:
+                        equipo_nombre = equipamiento_disponible_listbox.get(seleccion[0])
+                        equipo = next((e for e in Equipamiento.get_all() if e.Nombre_Equipamiento == equipo_nombre), None)
+                        if equipo and equipo not in personaje.equipamiento:
+                            personaje.equipamiento.append(equipo)
+                            cargar_equipamiento()
+                            cargar_equipamiento_disponible()
+
+                ttk.Button(frame, text="Agregar Equipamiento", command=agregar_equipamiento).grid(row=5, column=0, columnspan=2, pady=5)
+
+                def guardar_cambios():
+                    personaje.save()
+                    self.cargar_personajes()
+                    ventana_equipamiento.destroy()
+
+                ttk.Button(frame, text="Guardar Cambios", command=guardar_cambios).grid(row=6, column=0, columnspan=2, pady=10)
 
 class CreadorPersonaje(tk.Toplevel):
     def __init__(self, master, usuario):
@@ -222,18 +286,15 @@ class CreadorPersonaje(tk.Toplevel):
         right_frame = ttk.Frame(main_frame)
         right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
 
-        # Nombre del Personaje
         ttk.Label(left_frame, text="Nombre del Personaje:").pack(anchor="w", pady=(0, 5))
         self.nombre_entry = ttk.Entry(left_frame, width=30)
         self.nombre_entry.pack(fill=tk.X, pady=(0, 10))
 
-        # Raza
         ttk.Label(left_frame, text="Raza:").pack(anchor="w", pady=(0, 5))
         self.raza_combobox = ttk.Combobox(left_frame, state="readonly", width=28)
         self.raza_combobox.pack(fill=tk.X, pady=(0, 10))
         self.raza_combobox.bind("<<ComboboxSelected>>", self.actualizar_habilidades_poderes)
 
-        # Habilidades
         ttk.Label(left_frame, text="Habilidades:").pack(anchor="w", pady=(0, 5))
         habilidades_frame = ttk.Frame(left_frame)
         habilidades_frame.pack(fill=tk.BOTH, expand=True)
@@ -243,12 +304,10 @@ class CreadorPersonaje(tk.Toplevel):
         habilidades_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.habilidades_listbox.config(yscrollcommand=habilidades_scrollbar.set)
 
-        # Poder
         ttk.Label(right_frame, text="Poder:").pack(anchor="w", pady=(0, 5))
         self.poder_combobox = ttk.Combobox(right_frame, state="readonly", width=28)
         self.poder_combobox.pack(fill=tk.X, pady=(0, 10))
 
-        # Equipamiento
         ttk.Label(right_frame, text="Equipamiento:").pack(anchor="w", pady=(0, 5))
         equipamiento_frame = ttk.Frame(right_frame)
         equipamiento_frame.pack(fill=tk.BOTH, expand=True)
@@ -258,7 +317,6 @@ class CreadorPersonaje(tk.Toplevel):
         equipamiento_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.equipamiento_listbox.config(yscrollcommand=equipamiento_scrollbar.set)
 
-        # Botones de detalles
         buttons_frame = ttk.Frame(main_frame)
         buttons_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
         ttk.Button(buttons_frame, text="Ver detalles de raza", command=self.ver_detalles_raza).pack(side=tk.LEFT, padx=5)
@@ -303,15 +361,15 @@ class CreadorPersonaje(tk.Toplevel):
             messagebox.showinfo("Detalles de Raza", f"Nombre: {raza.Nombre_Raza}\nDescripción: {raza.Descripcion_Raza}")
 
     def ver_detalles_habilidades(self):
-       detalles = ""
-       for index in self.habilidades_listbox.curselection():
-           habilidad = Habilidad.get_by_nombre(self.habilidades_listbox.get(index))
-           if habilidad:
-               detalles += f"Nombre: {habilidad.Nombre_Habilidad}\nDescripción: {habilidad.Descripcion_Habilidad}\n\n"
-       if detalles:
-           messagebox.showinfo("Detalles de Habilidades", detalles)
-       else:
-           messagebox.showinfo("Detalles de Habilidades", "No hay habilidades seleccionadas")
+        detalles = ""
+        for index in self.habilidades_listbox.curselection():
+            habilidad = Habilidad.get_by_nombre(self.habilidades_listbox.get(index))
+            if habilidad:
+                detalles += f"Nombre: {habilidad.Nombre_Habilidad}\nDescripción: {habilidad.Descripcion_Habilidad}\n\n"
+        if detalles:
+            messagebox.showinfo("Detalles de Habilidades", detalles)
+        else:
+            messagebox.showinfo("Detalles de Habilidades", "No hay habilidades seleccionadas")
 
     def ver_detalles_poder(self):
         poder_nombre = self.poder_combobox.get()
@@ -336,42 +394,82 @@ class CreadorPersonaje(tk.Toplevel):
         poder = Poder.get_by_nombre(self.poder_combobox.get())
         equipamiento_seleccionado = [Equipamiento.get_by_nombre(self.equipamiento_listbox.get(i)) for i in self.equipamiento_listbox.curselection()]
 
-        if not nombre or not raza or not habilidades_seleccionadas or not poder or not equipamiento_seleccionado:
-            messagebox.showerror("Error", "Todos los campos son obligatorios")
+        if not nombre or not raza or len(habilidades_seleccionadas) != 2 or not poder or len(equipamiento_seleccionado) != 1:
+            messagebox.showerror("Error", "Debes seleccionar un nombre, una raza, exactamente 2 habilidades, 1 poder y 1 equipamiento")
             return
 
         nuevo_personaje = Personaje(
-            ID_Usuario=self.usuario.ID_Usuario,
-            Nombre_Personaje=nombre,
-            ID_Raza=raza.ID_Raza,
-            Nivel=1,
-            ID_Estado=1  # Vivo
+             ID_Usuario=self.usuario.ID_Usuario,
+             Nombre_Personaje=nombre,
+             ID_Raza=raza.ID_Raza,
+             Nivel=1,
+             ID_Estado=1  # Vivo
         )
         nuevo_personaje.save()
 
         for habilidad in habilidades_seleccionadas:
-            nuevo_personaje.agregar_habilidad(habilidad.ID_Habilidad)
+            nuevo_personaje.agregar_habilidad(habilidad)
 
-        nuevo_personaje.agregar_poder(poder.ID_Poder)
-
-        for equipo in equipamiento_seleccionado:
-            Personaje_Equipamiento(ID_Personaje=nuevo_personaje.ID_Personaje, ID_Equipamiento=equipo.ID_Equipamiento).save()
-
-        messagebox.showinfo("Éxito", f"Personaje {nombre} creado con éxito")
-        self.master.cargar_personajes()  # Actualizar la lista de personajes en la interfaz del jugador
-        self.destroy()
-
-        for habilidad in habilidades_seleccionadas:
-            nuevo_personaje.agregar_habilidad(habilidad.ID_Habilidad)
-
-        nuevo_personaje.agregar_poder(poder.ID_Poder)
+        nuevo_personaje.agregar_poder(poder)
 
         for equipo in equipamiento_seleccionado:
-            Personaje_Equipamiento(ID_Personaje=nuevo_personaje.ID_Personaje, ID_Equipamiento=equipo.ID_Equipamiento).save()
+            nuevo_personaje.agregar_equipamiento(equipamiento_seleccionado[0])
+
+        nuevo_personaje.save()
 
         messagebox.showinfo("Éxito", f"Personaje {nombre} creado con éxito")
-        self.master.cargar_personajes()  # Actualizar la lista de personajes en la interfaz del jugador
+        self.master.cargar_personajes()
         self.destroy()
+
+class DetallesPersonaje(tk.Toplevel):
+    def __init__(self, master, personaje):
+        super().__init__(master)
+        self.personaje = personaje
+        self.title(f"Detalles de {personaje.Nombre_Personaje}")
+        self.geometry("400x500")
+        self.create_widgets()
+
+    def create_widgets(self):
+        main_frame = ttk.Frame(self, padding="10")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Nombre del personaje
+        ttk.Label(main_frame, text=f"Nombre: {self.personaje.Nombre_Personaje}", font=("Arial", 14, "bold")).pack(anchor="w", pady=(0, 10))
+
+        # Nivel
+        ttk.Label(main_frame, text=f"Nivel: {self.personaje.Nivel}").pack(anchor="w", pady=(0, 5))
+
+        # Raza
+        raza = Raza.get_by_id(self.personaje.ID_Raza)
+        ttk.Label(main_frame, text=f"Raza: {raza.Nombre_Raza}").pack(anchor="w", pady=(0, 5))
+
+        # Estado
+        estado = Estado.get_by_id(self.personaje.ID_Estado)
+        ttk.Label(main_frame, text=f"Estado: {estado.Nombre_Estado}").pack(anchor="w", pady=(0, 5))
+
+        # Habilidades
+        ttk.Label(main_frame, text="Habilidades:", font=("Arial", 12, "bold")).pack(anchor="w", pady=(10, 5))
+        for habilidad in self.personaje.habilidades:
+            ttk.Label(main_frame, text=f"- {habilidad.Nombre_Habilidad}: {habilidad.Descripcion_Habilidad}").pack(anchor="w", padx=(20, 0))
+
+        # Poder
+        ttk.Label(main_frame, text="Poder:", font=("Arial", 12, "bold")).pack(anchor="w", pady=(10, 5))
+        if self.personaje.poder:
+            ttk.Label(main_frame, text=f"- {self.personaje.poder.Nombre_Poder}: {self.personaje.poder.Descripcion_Poder}").pack(anchor="w", padx=(20, 0))
+        else:
+            ttk.Label(main_frame, text="- Ningún poder asignado").pack(anchor="w", padx=(20, 0))
+
+        # Equipamiento
+        ttk.Label(main_frame, text="Equipamiento:", font=("Arial", 12, "bold")).pack(anchor="w", pady=(10, 5))
+        equipamiento = Equipamiento.get_by_personaje(self.personaje.ID_Personaje)
+        if equipamiento:
+            for equipo in equipamiento:
+                ttk.Label(main_frame, text=f"- {equipo.Nombre_Equipamiento}: {equipo.Descripcion_Equipamiento}").pack(anchor="w", padx=(20, 0))
+        else:
+            ttk.Label(main_frame, text="- Ningún equipamiento asignado").pack(anchor="w", padx=(20, 0))
+
+        # Botón para cerrar
+        ttk.Button(main_frame, text="Cerrar", command=self.destroy).pack(pady=(20, 0))    
 
 class GestionHabilidades(tk.Toplevel):
     def __init__(self, master):
@@ -594,8 +692,6 @@ class GestionRazasGM(tk.Toplevel):
                     raza_seleccionada.delete()
                     self.cargar_razas()
 
-
-
 class GestionEquipamiento(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
@@ -609,7 +705,7 @@ class GestionEquipamiento(tk.Toplevel):
         self.cargar_equipamiento()
 
         ttk.Button(self, text="Agregar Equipamiento", command=self.agregar_equipamiento).pack(pady=5)
-        ttk.Button(self, text="Eliminar Equipamiento", command=self.eliminar_equipamiento).pack(pady=5)
+        ttk.Button(self, text="Modificar Nombre", command=self.modificar_nombre_equipamiento).pack(pady=5)
 
     def cargar_equipamiento(self):
         self.equipamiento_listbox.delete(0, tk.END)
@@ -626,30 +722,17 @@ class GestionEquipamiento(tk.Toplevel):
                 nuevo_equipamiento.save()
                 self.cargar_equipamiento()
 
-    def eliminar_equipamiento(self):
+    def modificar_nombre_equipamiento(self):
         seleccion = self.equipamiento_listbox.curselection()
         if seleccion:
             index = seleccion[0]
             equipamiento = Equipamiento.get_all()[index]
-            confirmacion = messagebox.askyesno("Eliminar Equipamiento", f"¿Estás seguro de que quieres eliminar el equipamiento '{equipamiento.Nombre_Equipamiento}'?")
-            if confirmacion:
-                equipamiento.delete()
+            nuevo_nombre = simpledialog.askstring("Modificar Nombre", f"Nombre actual: {equipamiento.Nombre_Equipamiento}\nNuevo nombre:")
+            if nuevo_nombre:
+                equipamiento.Nombre_Equipamiento = nuevo_nombre
+                equipamiento.save()
                 self.cargar_equipamiento()
                 
-
-class InformePersonajes(tk.Toplevel):
-    def __init__(self, master):
-        super().__init__(master)
-        self.title("Informe de Personajes")
-        self.create_widgets()
-
-    def create_widgets(self):
-        self.personajes_listbox = tk.Listbox(self, width=100, height=20)
-        self.personajes_listbox.pack(pady=10)
-        self.cargar_personajes()
-
-        ttk.Button(self, text="Ver Detalles", command=self.ver_detalles_personaje).pack(pady=5)
-
     def cargar_personajes(self):
         personajes = Personaje.get_all()
         for personaje in personajes:
@@ -701,13 +784,16 @@ class GMModificadorPersonaje(tk.Toplevel):
         ttk.Button(main_frame, text="Modificar Raza", command=self.modificar_raza).grid(row=2, column=1, pady=5)
         ttk.Button(main_frame, text="Modificar Habilidades", command=self.modificar_habilidades).grid(row=3, column=0, pady=5)
         ttk.Button(main_frame, text="Modificar Poder", command=self.modificar_poder).grid(row=3, column=1, pady=5)
-        ttk.Button(main_frame, text="Modificar Equipamiento", command=self.modificar_equipamiento).grid(row=4, column=0, columnspan=2, pady=5)
+        ttk.Button(main_frame, text="Modificar Equipamiento", command=self.modificar_equipamiento).grid(row=4, column=0, pady=5)
+        ttk.Button(main_frame, text="Modificar Estado", command=self.modificar_estado).grid(row=4, column=1, pady=5)
+        ttk.Button(main_frame, text="Ver Detalles", command=self.ver_detalles_personaje).grid(row=1, column=2, pady=5, padx=10, sticky="ns")
 
     def cargar_personajes(self):
         self.personajes_listbox.delete(0, tk.END)
         personajes = Personaje.get_all()
         for personaje in personajes:
-            self.personajes_listbox.insert(tk.END, f"{personaje.Nombre_Personaje} (Nivel {personaje.Nivel})")
+            estado = Estado.get_by_id(personaje.ID_Estado)
+            self.personajes_listbox.insert(tk.END, f"{personaje.Nombre_Personaje} (Nivel {personaje.Nivel}, Estado: {estado.Nombre_Estado if estado else 'Desconocido'})")
 
     def obtener_personaje_seleccionado(self):
         seleccion = self.personajes_listbox.curselection()
@@ -727,121 +813,325 @@ class GMModificadorPersonaje(tk.Toplevel):
 
     def modificar_raza(self):
         personaje = self.obtener_personaje_seleccionado()
-        if personaje:
-            razas = Raza.get_all()
-            raza_actual = Raza.get_by_id(personaje.ID_Raza)
-            opciones = [raza.Nombre_Raza for raza in razas]
-            nueva_raza = simpledialog.askstring("Modificar Raza", f"Raza actual de {personaje.Nombre_Personaje}: {raza_actual.Nombre_Raza}\nSelecciona la nueva raza:", initialvalue=raza_actual.Nombre_Raza)
-            if nueva_raza in opciones:
-                personaje.ID_Raza = next(raza.ID_Raza for raza in razas if raza.Nombre_Raza == nueva_raza)
+        if not personaje:
+            return
+
+        razas = Raza.get_all()
+        raza_actual = Raza.get_by_id(personaje.ID_Raza)
+
+        ventana_razas = tk.Toplevel(self)
+        ventana_razas.title(f"Modificar Raza de {personaje.Nombre_Personaje}")
+
+        ttk.Label(ventana_razas, text="Selecciona la nueva raza:").pack(pady=5)
+        razas_listbox = tk.Listbox(ventana_razas, width=50, height=10)
+        razas_listbox.pack(pady=5)
+
+        for raza in razas:
+            razas_listbox.insert(tk.END, raza.Nombre_Raza)
+            if raza.ID_Raza == personaje.ID_Raza:
+                razas_listbox.selection_set(razas.index(raza))
+                
+                
+        def guardar_cambios():
+            seleccion = razas_listbox.curselection()
+            if seleccion:
+                nueva_raza = razas[seleccion[0]]
+                personaje.ID_Raza = nueva_raza.ID_Raza
                 personaje.save()
+                self.cargar_personajes()
+                ventana_razas.destroy()
+
+        ttk.Button(ventana_razas, text="Guardar", command=guardar_cambios).pack(pady=10)
 
     def modificar_habilidades(self):
         personaje = self.obtener_personaje_seleccionado()
+        if not personaje:
+            messagebox.showerror("Error", "Por favor, seleccione un personaje.")
+            return
+
+        ventana_habilidades = tk.Toplevel(self)
+        ventana_habilidades.title(f"Modificar Habilidades de {personaje.Nombre_Personaje}")
+        ventana_habilidades.geometry("600x400")
+
+        frame = ttk.Frame(ventana_habilidades, padding="10")
+        frame.pack(fill=tk.BOTH, expand=True)
+
+        ttk.Label(frame, text="Habilidades del personaje:").grid(row=0, column=0, sticky="w", pady=(0, 5))
+        habilidades_personaje_listbox = tk.Listbox(frame, width=50, height=5)
+        habilidades_personaje_listbox.grid(row=1, column=0, pady=(0, 10))
+
+        ttk.Label(frame, text="Habilidades disponibles:").grid(row=2, column=0, sticky="w", pady=(0, 5))
+        habilidades_disponibles_listbox = tk.Listbox(frame, width=50, height=5)
+        habilidades_disponibles_listbox.grid(row=3, column=0, pady=(0, 10))
+
+        def actualizar_listas():
+            habilidades_personaje_listbox.delete(0, tk.END)
+            habilidades_disponibles_listbox.delete(0, tk.END)
+        
+            for i, habilidad in enumerate(personaje.habilidades):
+                habilidades_personaje_listbox.insert(tk.END, habilidad.Nombre_Habilidad)
+                if i < 2:
+                    habilidades_personaje_listbox.itemconfig(i, {'bg': 'light gray'})
+
+            habilidades_raza = Habilidad.get_by_raza(personaje.ID_Raza)
+            for habilidad in habilidades_raza:
+                if habilidad not in personaje.habilidades:
+                    habilidades_disponibles_listbox.insert(tk.END, habilidad.Nombre_Habilidad)
+
+        actualizar_listas()
+
+        def agregar_habilidad():
+            if len(personaje.habilidades) >= 8:
+                messagebox.showwarning("Advertencia", "El personaje ya tiene el máximo de 8 habilidades.")
+                return
+
+            seleccion = habilidades_disponibles_listbox.curselection()
+            if seleccion:
+                index = seleccion[0]
+                habilidad_nombre = habilidades_disponibles_listbox.get(index)
+                habilidad = next((h for h in Habilidad.get_by_raza(personaje.ID_Raza) if h.Nombre_Habilidad == habilidad_nombre), None)
+                if habilidad:
+                    personaje.agregar_habilidad(habilidad)
+                    actualizar_listas()
+
+        def quitar_habilidad():
+            seleccion = habilidades_personaje_listbox.curselection()
+            if seleccion and seleccion[0] >= 2:
+                index = seleccion[0]
+                habilidad = personaje.habilidades[index]
+                personaje.eliminar_habilidad(habilidad)
+                actualizar_listas()
+
+        ttk.Button(frame, text="Agregar Habilidad", command=agregar_habilidad).grid(row=4, column=0, pady=5)
+        ttk.Button(frame, text="Quitar Habilidad", command=quitar_habilidad).grid(row=5, column=0, pady=5)
+
+        def guardar_cambios():
+            personaje.save()
+            messagebox.showinfo("Éxito", "Habilidades actualizadas correctamente.")
+            ventana_habilidades.destroy()
+
+        ttk.Button(frame, text="Guardar Cambios", command=guardar_cambios).grid(row=6, column=0, pady=10)
+        
+    def modificar_estado(self):
+        personaje = self.obtener_personaje_seleccionado()
         if personaje:
-            ModificadorHabilidades(self, personaje)
+            estados = Estado.get_all()
+            estado_actual = Estado.get_by_id(personaje.ID_Estado)
+            ventana_estados = tk.Toplevel(self)
+            ventana_estados.title(f"Modificar Estado de {personaje.Nombre_Personaje}")
+            ttk.Label(ventana_estados, text="Selecciona el nuevo estado:").pack(pady=5)
+            estados_listbox = tk.Listbox(ventana_estados, width=50, height=10)
+            estados_listbox.pack(pady=5)
+
+            for estado in estados:
+                estados_listbox.insert(tk.END, estado.Nombre_Estado)
+                if estado.ID_Estado == personaje.ID_Estado:
+                    estados_listbox.selection_set(estados.index(estado))
+        
+            def guardar_cambios():
+                seleccion = estados_listbox.curselection()
+                if seleccion:
+                    nuevo_estado = estados[seleccion[0]]
+                    personaje.ID_Estado = nuevo_estado.ID_Estado
+                    personaje.save()
+                    self.cargar_personajes()
+                    ventana_estados.destroy()
+            ttk.Button(ventana_estados, text="Guardar", command=guardar_cambios).pack(pady=10)
 
     def modificar_poder(self):
         personaje = self.obtener_personaje_seleccionado()
-        if personaje:
-            poderes = Poder.get_by_raza(personaje.ID_Raza)
-            opciones = [poder.Nombre_Poder for poder in poderes]
-            poder_actual = personaje.poder
-            nuevo_poder = simpledialog.askstring("Modificar Poder", f"Poder actual de {personaje.Nombre_Personaje}: {poder_actual.Nombre_Poder if poder_actual else 'Ninguno'}\nSelecciona el nuevo poder:", initialvalue=poder_actual.Nombre_Poder if poder_actual else None)
-            if nuevo_poder in opciones:
-                personaje.agregar_poder(next(poder for poder in poderes if poder.Nombre_Poder == nuevo_poder))
+        if not personaje:
+            return
+            
+        poderes = Poder.get_by_raza(personaje.ID_Raza)
+        poder_actual = personaje.poder
+
+        ventana_poderes = tk.Toplevel(self)
+        ventana_poderes.title(f"Modificar Poder de {personaje.Nombre_Personaje}")
+
+        ttk.Label(ventana_poderes, text="Selecciona el nuevo poder:").pack(pady=5)
+        poderes_listbox = tk.Listbox(ventana_poderes, width=50, height=10)
+        poderes_listbox.pack(pady=5)
+
+        for poder in poderes:
+            poderes_listbox.insert(tk.END, poder.Nombre_Poder)
+            if poder == poder_actual:
+                poderes_listbox.selection_set(poderes.index(poder))
+
+        def guardar_cambios():
+            seleccion = poderes_listbox.curselection()
+            if seleccion:
+                nuevo_poder = poderes[seleccion[0]]
+                personaje.agregar_poder(nuevo_poder)
                 personaje.save()
+                self.cargar_personajes()
+                ventana_poderes.destroy()
+        ttk.Button(ventana_poderes, text="Guardar", command=guardar_cambios).pack(pady=10)
 
     def modificar_equipamiento(self):
         personaje = self.obtener_personaje_seleccionado()
-        if personaje:
-            ModificadorEquipamiento(self, personaje)
+        if not personaje:
+            messagebox.showerror("Error", "Por favor, seleccione un personaje.")
+            return
 
-class ModificadorHabilidades(tk.Toplevel):
-    def __init__(self, master, personaje):
+        if personaje.ID_Estado == 2:  # Asumiendo que 2 es el ID del estado "Muerto"
+            messagebox.showerror("Error", "No se puede modificar el equipamiento de un personaje muerto.")
+            return
+
+        ventana_equipamiento = tk.Toplevel(self)
+        ventana_equipamiento.title(f"Modificar Equipamiento de {personaje.Nombre_Personaje}")
+        ventana_equipamiento.geometry("600x400")
+
+        frame = ttk.Frame(ventana_equipamiento, padding="10")
+        frame.pack(fill=tk.BOTH, expand=True)
+
+        ttk.Label(frame, text="Equipamiento actual:").grid(row=0, column=0, sticky="w", pady=5)
+        equipamiento_listbox = tk.Listbox(frame, width=50, height=8)
+        equipamiento_listbox.grid(row=1, column=0, pady=5)
+
+        ttk.Label(frame, text="Equipamiento disponible:").grid(row=0, column=1, sticky="w", pady=5)
+        equipamiento_disponible_listbox = tk.Listbox(frame, width=50, height=8)
+        equipamiento_disponible_listbox.grid(row=1, column=1, pady=5)
+ 
+        def cargar_equipamiento():
+            equipamiento_listbox.delete(0, tk.END)
+            for i, equipo in enumerate(personaje.equipamiento):
+                equipamiento_listbox.insert(tk.END, equipo.Nombre_Equipamiento)
+                if i == 0:  # El primer equipamiento no se puede eliminar
+                    equipamiento_listbox.itemconfig(i, {'bg': 'light gray'})
+
+        def cargar_equipamiento_disponible():
+            equipamiento_disponible_listbox.delete(0, tk.END)
+            equipamiento_disponible = [e for e in Equipamiento.get_all() if e not in personaje.equipamiento]
+            for equipo in equipamiento_disponible:
+                equipamiento_disponible_listbox.insert(tk.END, equipo.Nombre_Equipamiento)
+
+        cargar_equipamiento()
+        cargar_equipamiento_disponible()
+
+        def agregar_equipamiento():
+            if len(personaje.equipamiento) >= 8:
+                messagebox.showwarning("Advertencia", "El personaje ya tiene el máximo de 8 equipamientos.")
+                return
+
+            seleccion = equipamiento_disponible_listbox.curselection()
+            if seleccion:
+                index = seleccion[0]
+                equipo_nombre = equipamiento_disponible_listbox.get(index)
+                equipo = next((e for e in Equipamiento.get_all() if e.Nombre_Equipamiento == equipo_nombre), None)
+                if equipo:
+                    personaje.equipamiento.append(equipo)
+                    cargar_equipamiento()
+                    cargar_equipamiento_disponible()
+
+        def eliminar_equipamiento():
+            seleccion = equipamiento_listbox.curselection()
+            if seleccion and seleccion[0] > 0:  # No se puede eliminar el primer equipamiento
+                del personaje.equipamiento[seleccion[0]]
+                cargar_equipamiento()
+                cargar_equipamiento_disponible()
+
+        ttk.Button(frame, text="Agregar Equipamiento", command=agregar_equipamiento).grid(row=2, column=1, pady=5)
+        ttk.Button(frame, text="Eliminar Equipamiento", command=eliminar_equipamiento).grid(row=2, column=0, pady=5)
+
+        def guardar_cambios():
+            personaje.save()
+            self.cargar_personajes()
+            messagebox.showinfo("Éxito", "Equipamiento actualizado correctamente.")
+            ventana_equipamiento.destroy()
+
+        ttk.Button(frame, text="Guardar Cambios", command=guardar_cambios).grid(row=3, column=0, columnspan=2, pady=10)
+
+    def ver_detalles_personaje(self):
+        personaje = self.obtener_personaje_seleccionado()
+        if not personaje:
+            return
+
+        ventana_detalles = tk.Toplevel(self)
+        ventana_detalles.title(f"Detalles de {personaje.Nombre_Personaje}")
+
+        frame = ttk.Frame(ventana_detalles, padding="10")
+        frame.pack(fill=tk.BOTH, expand=True)
+
+        ttk.Label(frame, text=f"Nombre: {personaje.Nombre_Personaje}", font=("", 12, "bold")).grid(row=0, column=0, sticky="w", pady=5)
+        ttk.Label(frame, text=f"Nivel: {personaje.Nivel}").grid(row=1, column=0, sticky="w", pady=2)
+        ttk.Label(frame, text=f"Raza: {Raza.get_by_id(personaje.ID_Raza).Nombre_Raza}").grid(row=2, column=0, sticky="w", pady=2)
+        ttk.Label(frame, text=f"Estado: {Estado.get_by_id(personaje.ID_Estado).Nombre_Estado}").grid(row=3, column=0, sticky="w", pady=2)
+
+        ttk.Label(frame, text="Habilidades:", font=("", 10, "bold")).grid(row=4, column=0, sticky="w", pady=(10, 5))
+        habilidades_text = "\n".join([f"- {h.Nombre_Habilidad}" for h in personaje.habilidades])
+        ttk.Label(frame, text=habilidades_text).grid(row=5, column=0, sticky="w", pady=2)
+
+        ttk.Label(frame, text="Poder:", font=("", 10, "bold")).grid(row=6, column=0, sticky="w", pady=(10, 5))
+        poder_text = f"- {personaje.poder.Nombre_Poder}" if personaje.poder else "- Ningún poder asignado"
+        ttk.Label(frame, text=poder_text).grid(row=7, column=0, sticky="w", pady=2)
+
+        ttk.Label(frame, text="Equipamiento:", font=("", 10, "bold")).grid(row=8, column=0, sticky="w", pady=(10, 5))
+        personaje.cargar_equipamiento()
+        equipamiento_text = "\n".join([f"- {e.Nombre_Equipamiento}" for e in personaje.equipamiento])
+        ttk.Label(frame, text=equipamiento_text).grid(row=9, column=0, sticky="w", pady=2)
+
+        ttk.Button(frame, text="Cerrar", command=ventana_detalles.destroy).grid(row=10, column=0, pady=10)
+
+        
+class GestionEstados(tk.Toplevel):
+    def __init__(self, master):
         super().__init__(master)
-        self.personaje = personaje
-        self.title(f"Modificar Habilidades de {personaje.Nombre_Personaje}")
+        self.title("Gestión de Estados")
+        self.geometry("400x300")
         self.create_widgets()
 
     def create_widgets(self):
-        ttk.Label(self, text="Habilidades disponibles:").pack(pady=(10, 5))
-        self.habilidades_listbox = tk.Listbox(self, selectmode=tk.MULTIPLE, width=50, height=10)
-        self.habilidades_listbox.pack(pady=5)
-        self.cargar_habilidades()
+        self.estados_listbox = tk.Listbox(self, width=50, height=10)
+        self.estados_listbox.pack(pady=10)
+        self.cargar_estados()
 
-        ttk.Button(self, text="Guardar cambios", command=self.guardar_cambios).pack(pady=10)
+        ttk.Button(self, text="Agregar Estado", command=self.agregar_estado).pack(pady=5)
+        ttk.Button(self, text="Modificar Estado", command=self.modificar_estado).pack(pady=5)
+        ttk.Button(self, text="Eliminar Estado", command=self.eliminar_estado).pack(pady=5)
 
-    def cargar_habilidades(self):
-        habilidades = Habilidad.get_by_raza(self.personaje.ID_Raza)
-        habilidades_personaje = Habilidad.get_by_personaje(self.personaje.ID_Personaje)
-        for i, habilidad in enumerate(habilidades):
-            self.habilidades_listbox.insert(tk.END, habilidad.Nombre_Habilidad)
-            if habilidad in habilidades_personaje:
-                self.habilidades_listbox.selection_set(i)
+    def cargar_estados(self):
+        self.estados_listbox.delete(0, tk.END)
+        estados = Estado.get_all()
+        for estado in estados:
+            self.estados_listbox.insert(tk.END, f"{estado.Nombre_Estado} ({'Base' if estado.Es_Base else 'Personalizado'})")
 
-    def guardar_cambios(self):
-        seleccion = self.habilidades_listbox.curselection()
-        nuevas_habilidades = [Habilidad.get_by_raza(self.personaje.ID_Raza)[i] for i in seleccion]
-        self.personaje.habilidades = nuevas_habilidades
-        self.personaje.save()
-        self.destroy()
+    def agregar_estado(self):
+        nombre = simpledialog.askstring("Agregar Estado", "Nombre del nuevo estado:")
+        if nombre:
+            descripcion = simpledialog.askstring("Agregar Estado", "Descripción del estado:")
+            nuevo_estado = Estado(Nombre_Estado=nombre, Descripcion_Estado=descripcion)
+            nuevo_estado.save()
+            self.cargar_estados()
 
-class ModificadorEquipamiento(tk.Toplevel):
-    def __init__(self, master, personaje):
-        super().__init__(master)
-        self.personaje = personaje
-        self.title(f"Modificar Equipamiento de {personaje.Nombre_Personaje}")
-        self.create_widgets()
+    def modificar_estado(self):
+        seleccion = self.estados_listbox.curselection()
+        if seleccion:
+            index = seleccion[0]
+            estado = Estado.get_all()[index]
+            if not estado.Es_Base:
+                nuevo_nombre = simpledialog.askstring("Modificar Estado", "Nuevo nombre del estado:", initialvalue=estado.Nombre_Estado)
+                if nuevo_nombre:
+                    nueva_descripcion = simpledialog.askstring("Modificar Estado", "Nueva descripción del estado:", initialvalue=estado.Descripcion_Estado)
+                    estado.Nombre_Estado = nuevo_nombre
+                    estado.Descripcion_Estado = nueva_descripcion
+                    estado.save()
+                    self.cargar_estados()
+            else:
+                messagebox.showwarning("Modificar Estado", "No se pueden modificar los estados base.")
 
-    def create_widgets(self):
-        ttk.Label(self, text="Equipamiento disponible:").pack(pady=(10, 5))
-        self.equipamiento_listbox = tk.Listbox(self, selectmode=tk.MULTIPLE, width=50, height=10)
-        self.equipamiento_listbox.pack(pady=5)
-        self.cargar_equipamiento()
-
-        ttk.Button(self, text="Guardar cambios", command=self.guardar_cambios).pack(pady=10)
-
-    def cargar_equipamiento(self):
-        equipamiento = Equipamiento.get_all()
-        equipamiento_personaje = Equipamiento.get_by_personaje(self.personaje.ID_Personaje)
-        for i, equipo in enumerate(equipamiento):
-            self.equipamiento_listbox.insert(tk.END, equipo.Nombre_Equipamiento)
-            if equipo in equipamiento_personaje:
-                self.equipamiento_listbox.selection_set(i)
-
-    def guardar_cambios(self):
-        seleccion = self.equipamiento_listbox.curselection()
-        nuevo_equipamiento = [Equipamiento.get_all()[i] for i in seleccion]
-        self.personaje.equipamiento = nuevo_equipamiento
-        self.personaje.save()
-        self.destroy()
-        
-class DetallesPersonaje(tk.Toplevel):
-    def __init__(self, master, personaje):
-        super().__init__(master)
-        self.personaje = personaje
-        self.title(f"Detalles de {personaje.Nombre_Personaje}")
-        self.create_widgets()
-
-    def create_widgets(self):
-        ttk.Label(self, text=f"Nombre: {self.personaje.Nombre_Personaje}").pack(pady=5)
-        ttk.Label(self, text=f"Nivel: {self.personaje.Nivel}").pack(pady=5)
-        raza = Raza.get_by_id(self.personaje.ID_Raza)
-        ttk.Label(self, text=f"Raza: {raza.Nombre_Raza}").pack(pady=5)
-        
-        ttk.Label(self, text="Habilidades:").pack(pady=5)
-        for habilidad in self.personaje.habilidades:
-            ttk.Label(self, text=f"- {habilidad.Nombre_Habilidad}").pack()
-        
-        if self.personaje.poder:
-            ttk.Label(self, text=f"Poder: {self.personaje.poder[0].Nombre_Poder if self.personaje.poder else 'Ninguno'}").pack(pady=5)
-        
-        ttk.Label(self, text="Equipamiento:").pack(pady=5)
-        equipamiento = Personaje_Equipamiento.get_by_personaje(self.personaje.ID_Personaje)
-        for equipo in equipamiento:
-            equipo_detalle = Equipamiento.get_by_id(equipo.ID_Equipamiento)
-            if equipo_detalle:
-                ttk.Label(self, text=f"- {equipo_detalle.Nombre_Equipamiento}").pack()
-        
-        ttk.Button(self, text="Cerrar", command=self.destroy).pack(pady=10)
+    def eliminar_estado(self):
+        seleccion = self.estados_listbox.curselection()
+        if seleccion:
+            index = seleccion[0]
+            estado = Estado.get_all()[index]
+            if not estado.Es_Base:
+                confirmacion = messagebox.askyesno("Eliminar Estado", f"¿Estás seguro de que quieres eliminar el estado '{estado.Nombre_Estado}'?")
+                if confirmacion:
+                    try:
+                        estado.delete()
+                        self.cargar_estados()
+                    except ValueError as e:
+                        messagebox.showerror("Error", str(e))
+            else:
+                messagebox.showwarning("Eliminar Estado", "No se pueden eliminar los estados base.")
